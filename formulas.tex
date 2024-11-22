@@ -1,0 +1,59 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{cancel}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{minted}
+\usepackage{wasysym}
+\usepackage{xcolor}
+\newcommand{\Ad}[1]{\text{Ad}_{#1}}
+\newcommand{\atan}{\text{atan2}}
+\newcommand{\p}{\text{.}}
+\newcommand{\q}{\text{,}}
+\newcommand{\Span}[1]{\text{Span}\{#1\}}
+\newcommand{\todo}{{\color{red}TODO}}
+
+\begin{document}
+\begin{center}
+\textbf{Notation Appendix}
+\end{center}
+The purpose of this project is for a robotic arm to correctly identify and go to an illuminated part of the screen, all while avoiding a specific obstacle. We split the project into three parts:
+\begin{itemize}
+    \item \textbf{Display}: the square simulation program, independent of the robotics. That is, this program does not communicate with the robot, as that would defeat the purpose of much of the project.
+    \begin{itemize}
+        \item Let $B \in \{0, 1\}^{N \times M}$ represent the board. $0$s correspond to unilluminated squares, and $1$s the illuminated one(s).
+        \item Let $B_\text{color} \in \{0, \cdots, 255\}^3$ be the color of the illuminated square(s). Note there is only one color at a time, but it \textit{can} change over time.
+    \end{itemize}
+    
+    \item \textbf{Vision:} Given imaging of the state of the robot, it must decide where to go next (i.e. where to place the target point). The system scans the environment, identifies the position of the obstacle, and precomputes the necessary twists to get from its tucked state, to the state for the illuminated square, and then back to the tucked state. 
+    \begin{itemize}
+        \item Let $g_0(\theta \in [0, 2\pi]^7)$ be the current state of the robot and let $g_1(\theta \in [0, 2\pi]^7)$ be its target state.
+        \item We utilize dynamic replanning with hyperparameters $\lambda$ to determine the optimal $\xi$ such that the robot still avoids the obstacle. We use
+        $$\xi_\text{new} = \arg \min_\xi (||\xi_\text{goal} - \xi|| + \lambda \sum_i \frac{1}{r_i^{~2}}) \p$$
+        \item We also define the repulsive force as 
+        $$\xi_\text{repel} = \frac{k\hat{r}}{{r_\text{obstacle}}^2} \q$$
+        where $k$ is the scaling factor determing repulsive strength $r_\text{obstacle}$ isthe distance between the EF and the pole, and $\hat{r}$ is the unit vector pointing away from the pole, 
+        $$\hat{r} = \frac{x_\text{EF} - p_\text{pole}}{||x_\text{EF} - p_\text{pole}||} \p$$
+        \item The precomputed, optimized twists are saved in the tensor $\Xi \in \mathbb{R}^{N \times M \times 7}$, where the depth of the tensor represents the list of 7 twists
+    \end{itemize}
+    
+    \item \textbf{Control}: Given a target point as its input (i.e. where the illuminated square is), the EF travels to that target point while the entirety of the robot avoids the obstacle. It does so by using the cached twist.
+    \begin{itemize}
+        \item Suppose the $(n, m)$th square lights up. The robot then travels from $\Xi_\text{tucked} = \begin{bmatrix}
+            | & & |\\
+            \xi_{01} & \cdots & \xi_{07}\\
+            |&&|
+        \end{bmatrix}$ to $\Xi_{n,m,:} = \begin{bmatrix}
+            | & & |\\
+            \xi_{11} & \cdots & \xi_{17}\\
+            |&&|
+        \end{bmatrix}$, and then back to $\Xi_\text{tucked}$.
+        \item Reserve the variables $P, I, D, e, K_p, K_i, K_d$ for the PID control.
+    \end{itemize}
+\end{itemize}
+
+\end{document}
