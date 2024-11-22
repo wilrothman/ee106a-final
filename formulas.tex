@@ -56,4 +56,35 @@ The purpose of this project is for a robotic arm to correctly identify and go to
     \end{itemize}
 \end{itemize}
 
+
+\pagebreak
+\section{Nov 22 Notes}
+$\{W\}$ world frame\\
+$\{P\}$ pole frame
+$q_\text{pole}$ pole axis (vector)
+
+\begin{itemize}
+    \item Reference Configuration (tucked)
+    \item Reference Orientation
+    \item Simulated pole
+\end{itemize}
+
+Error correction. Before each movement checks to see if robot intersects with pole at any point within a certain radius along that axis. (max radius of arm is 3 inches, radius of pole is 0.5 inches).\\
+how to get the joint positions: 
+\begin{minted}{python}
+robot.get_joint_positions()
+robot.get_joint_angles()
+\end{minted}
+Custom Sawyer Tuck launch: 
+
+\begin{minted}{xml}
+<launch>
+  <node name="sawyer_head" pkg="rostopic" type="rostopic" respawn="false" output="screen" args="pub /robot/head/command_head_pan intera_core_msgs/HeadPanCommand '{target: 0, speed_ratio: 1, pan_mode: 1}' -1" />
+
+  <node name="sawyer_tuck" pkg="intera_examples" type="sawyer_tuck.py" respawn="false" output="screen" args="-q 0 -1 0 1.5 0 -0.5 1.7" />
+</launch>
+
+\end{minted}
+
+We need to use the MoveIt library to build the collision environment, we can both build the obstacle and the current robot (using the functions from above). We then build plans within this environment, and that is what the machine learning algo is being run on, to build the plan to go to a specific point.
 \end{document}
