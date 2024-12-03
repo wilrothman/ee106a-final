@@ -35,6 +35,14 @@
 /home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/gtest/googletest/CMakeFiles/test.dir
 /home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/gtest/googletest/CMakeFiles/gtest_main.dir
 /home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/gtest/googletest/CMakeFiles/gtest.dir
+/home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/sawyer_full_stack/CMakeFiles/install/strip.dir
+/home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/sawyer_full_stack/CMakeFiles/install/local.dir
+/home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/sawyer_full_stack/CMakeFiles/install.dir
+/home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/sawyer_full_stack/CMakeFiles/list_install_components.dir
+/home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/sawyer_full_stack/CMakeFiles/rebuild_cache.dir
+/home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/sawyer_full_stack/CMakeFiles/edit_cache.dir
+/home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/sawyer_full_stack/CMakeFiles/test.dir
+/home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/sawyer_full_stack/CMakeFiles/_catkin_empty_exported_target.dir
 /home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/ik/CMakeFiles/install/strip.dir
 /home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/ik/CMakeFiles/install.dir
 /home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/ik/CMakeFiles/list_install_components.dir
@@ -131,7 +139,6 @@
 /home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/move_arm/CMakeFiles/rebuild_cache.dir
 /home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/move_arm/CMakeFiles/edit_cache.dir
 /home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/move_arm/CMakeFiles/test.dir
-/home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/move_arm/CMakeFiles/_catkin_empty_exported_target.dir
 /home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/planning/CMakeFiles/list_install_components.dir
 /home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/planning/CMakeFiles/tf2_msgs_generate_messages_py.dir
 /home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/planning/CMakeFiles/tf2_msgs_generate_messages_lisp.dir

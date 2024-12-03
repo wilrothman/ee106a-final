@@ -54,6 +54,7 @@ CMAKE_BINARY_DIR = /home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/bu
 
 # The main recursive "all" target.
 all: gtest/all
+all: sawyer_full_stack/all
 all: ik/all
 all: move_arm/all
 all: planning/all
@@ -62,6 +63,7 @@ all: planning/all
 
 # The main recursive "preinstall" target.
 preinstall: gtest/preinstall
+preinstall: sawyer_full_stack/preinstall
 preinstall: ik/preinstall
 preinstall: move_arm/preinstall
 preinstall: planning/preinstall
@@ -75,6 +77,7 @@ clean: CMakeFiles/clean_test_results.dir/clean
 clean: CMakeFiles/tests.dir/clean
 clean: CMakeFiles/download_extra_data.dir/clean
 clean: gtest/clean
+clean: sawyer_full_stack/clean
 clean: ik/clean
 clean: move_arm/clean
 clean: planning/clean
@@ -251,7 +254,7 @@ move_arm/preinstall:
 .PHONY : move_arm/preinstall
 
 # Recursive "clean" directory target.
-move_arm/clean: move_arm/CMakeFiles/_catkin_empty_exported_target.dir/clean
+move_arm/clean:
 
 .PHONY : move_arm/clean
 
@@ -287,6 +290,24 @@ planning/clean: planning/CMakeFiles/tf2_msgs_generate_messages_cpp.dir/clean
 planning/clean: planning/CMakeFiles/baxter_maintenance_msgs_generate_messages_lisp.dir/clean
 
 .PHONY : planning/clean
+
+#=============================================================================
+# Directory level rules for directory sawyer_full_stack
+
+# Recursive "all" directory target.
+sawyer_full_stack/all:
+
+.PHONY : sawyer_full_stack/all
+
+# Recursive "preinstall" directory target.
+sawyer_full_stack/preinstall:
+
+.PHONY : sawyer_full_stack/preinstall
+
+# Recursive "clean" directory target.
+sawyer_full_stack/clean: sawyer_full_stack/CMakeFiles/_catkin_empty_exported_target.dir/clean
+
+.PHONY : sawyer_full_stack/clean
 
 #=============================================================================
 # Target rules for target CMakeFiles/doxygen.dir
@@ -531,6 +552,33 @@ gtest: gtest/googletest/CMakeFiles/gtest.dir/rule
 gtest/googletest/CMakeFiles/gtest.dir/clean:
 	$(MAKE) -f gtest/googletest/CMakeFiles/gtest.dir/build.make gtest/googletest/CMakeFiles/gtest.dir/clean
 .PHONY : gtest/googletest/CMakeFiles/gtest.dir/clean
+
+#=============================================================================
+# Target rules for target sawyer_full_stack/CMakeFiles/_catkin_empty_exported_target.dir
+
+# All Build rule for target.
+sawyer_full_stack/CMakeFiles/_catkin_empty_exported_target.dir/all:
+	$(MAKE) -f sawyer_full_stack/CMakeFiles/_catkin_empty_exported_target.dir/build.make sawyer_full_stack/CMakeFiles/_catkin_empty_exported_target.dir/depend
+	$(MAKE) -f sawyer_full_stack/CMakeFiles/_catkin_empty_exported_target.dir/build.make sawyer_full_stack/CMakeFiles/_catkin_empty_exported_target.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/CMakeFiles --progress-num= "Built target _catkin_empty_exported_target"
+.PHONY : sawyer_full_stack/CMakeFiles/_catkin_empty_exported_target.dir/all
+
+# Build rule for subdir invocation for target.
+sawyer_full_stack/CMakeFiles/_catkin_empty_exported_target.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/CMakeFiles 0
+	$(MAKE) -f CMakeFiles/Makefile2 sawyer_full_stack/CMakeFiles/_catkin_empty_exported_target.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/CMakeFiles 0
+.PHONY : sawyer_full_stack/CMakeFiles/_catkin_empty_exported_target.dir/rule
+
+# Convenience name for target.
+_catkin_empty_exported_target: sawyer_full_stack/CMakeFiles/_catkin_empty_exported_target.dir/rule
+
+.PHONY : _catkin_empty_exported_target
+
+# clean rule for target.
+sawyer_full_stack/CMakeFiles/_catkin_empty_exported_target.dir/clean:
+	$(MAKE) -f sawyer_full_stack/CMakeFiles/_catkin_empty_exported_target.dir/build.make sawyer_full_stack/CMakeFiles/_catkin_empty_exported_target.dir/clean
+.PHONY : sawyer_full_stack/CMakeFiles/_catkin_empty_exported_target.dir/clean
 
 #=============================================================================
 # Target rules for target ik/CMakeFiles/octomap_msgs_generate_messages_py.dir
@@ -2745,33 +2793,6 @@ intera_motion_msgs_generate_messages_eus: ik/CMakeFiles/intera_motion_msgs_gener
 ik/CMakeFiles/intera_motion_msgs_generate_messages_eus.dir/clean:
 	$(MAKE) -f ik/CMakeFiles/intera_motion_msgs_generate_messages_eus.dir/build.make ik/CMakeFiles/intera_motion_msgs_generate_messages_eus.dir/clean
 .PHONY : ik/CMakeFiles/intera_motion_msgs_generate_messages_eus.dir/clean
-
-#=============================================================================
-# Target rules for target move_arm/CMakeFiles/_catkin_empty_exported_target.dir
-
-# All Build rule for target.
-move_arm/CMakeFiles/_catkin_empty_exported_target.dir/all:
-	$(MAKE) -f move_arm/CMakeFiles/_catkin_empty_exported_target.dir/build.make move_arm/CMakeFiles/_catkin_empty_exported_target.dir/depend
-	$(MAKE) -f move_arm/CMakeFiles/_catkin_empty_exported_target.dir/build.make move_arm/CMakeFiles/_catkin_empty_exported_target.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/CMakeFiles --progress-num= "Built target _catkin_empty_exported_target"
-.PHONY : move_arm/CMakeFiles/_catkin_empty_exported_target.dir/all
-
-# Build rule for subdir invocation for target.
-move_arm/CMakeFiles/_catkin_empty_exported_target.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/CMakeFiles 0
-	$(MAKE) -f CMakeFiles/Makefile2 move_arm/CMakeFiles/_catkin_empty_exported_target.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/cc/ee106a/fa24/class/ee106a-aiz/ros_workspaces/final/build/CMakeFiles 0
-.PHONY : move_arm/CMakeFiles/_catkin_empty_exported_target.dir/rule
-
-# Convenience name for target.
-_catkin_empty_exported_target: move_arm/CMakeFiles/_catkin_empty_exported_target.dir/rule
-
-.PHONY : _catkin_empty_exported_target
-
-# clean rule for target.
-move_arm/CMakeFiles/_catkin_empty_exported_target.dir/clean:
-	$(MAKE) -f move_arm/CMakeFiles/_catkin_empty_exported_target.dir/build.make move_arm/CMakeFiles/_catkin_empty_exported_target.dir/clean
-.PHONY : move_arm/CMakeFiles/_catkin_empty_exported_target.dir/clean
 
 #=============================================================================
 # Target rules for target planning/CMakeFiles/tf2_msgs_generate_messages_py.dir
