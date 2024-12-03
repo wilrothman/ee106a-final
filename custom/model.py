@@ -4,6 +4,9 @@ class Pole:
     def __init__(self, base, tip):
         self.base = np.array(base)
         self.tip = np.array(tip)
+
+        assert not np.isclose(self.base, self.tip), "Both points on pole cannot overlap"
+
         self.direction = (self.tip - self.base) / np.linalg.norm(self.tip - self.base)
 
 class RepulsionModel:
