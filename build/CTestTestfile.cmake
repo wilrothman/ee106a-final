@@ -5,7 +5,4 @@
 # This file includes the relevant testing commands required for 
 # testing this directory and lists subdirectories to be tested as well.
 subdirs("gtest")
-subdirs("sawyer_full_stack")
-subdirs("ik")
 subdirs("move_arm")
-subdirs("planning")
