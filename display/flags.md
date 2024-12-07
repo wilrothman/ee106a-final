@@ -10,6 +10,6 @@ Run command:
 
 Examples:
 
->>> `python3 display/game.py -s square -r 70 -d 800,600 -b 0,0,0 -c 255,255,255 # default settings`
+`python3 display/game.py -s square -r 70 -d 800,600 -b 0,0,0 -c 255,255,255 # default settings`
 
->>> `python3 display/game.py -s circle -r 50,100 -d 800,200 -b 255,255,255 -c 0,0,0`
+`python3 display/game.py -s circle -r 50,100 -d 800,200 -b 255,255,255 -c 0,0,0`
