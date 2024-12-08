@@ -28,20 +28,28 @@ def main():
         #### /SETUP ####
 
 
-
-        # TEMPORARY VARIABLE WHILE VISION DOESNT WORK
-        # TEMP_POLE_POINT_1, TEMP_POLE_POINT_2 = (), ()
-
+        NUM_SAMPLES = 10_000
+        CUSTOM_BETA = 0.25 # idk what this should be yet. Recall 0 means no magnetic force
         MAX_DIST_POLE = 1 # meters
-        motion_planner = MotionPlanner((-MAX_DIST_POLE, MAX_DIST_POLE), 10000)
+        POLE_POINT_1 = (0.689, -1.000, 0) # TODO: vision
+        POLE_POINT_2 = (0.689, -1.000, 2) # TODO: vision
+        GOAL = (0.689, -0.300, 0.382)     # TODO: vision
+        NUM_STEPS = 10 # the number of increasing spheres
+
+        
+        STEP_SIZE = int(MAX_DIST_POLE / NUM_STEPS)
+
+        motion_planner = MotionPlanner((-MAX_DIST_POLE, MAX_DIST_POLE), NUM_SAMPLES)
         motion_planner.print_points()
 
-        # Built-In Tuck --> Goal
-        # (0.689, 0.161, 0.382) --> (0.689, -0.300, 0.382)
-        # But a (0.689, -1.000, ) pole is in its path!
-
-        optimized = motion_planner.optimize((0.689, -0.300, 0.382), (0.689, -1.000, 0), (0.689, -1.000, 2), BETA)
+        optimized = motion_planner.optimize(GOAL, POLE_POINT_1, POLE_POINT_2, CUSTOM_BETA)
         print("Optimized:", optimized)
+
+
+        # for each increasing sphere...
+        for step in range(STEP_SIZE):
+            motion_planner = MotionPlanner((-step * STEP_SIZE, step * STEP_SIZE), NUM_SAMPLES)
+            motion_planner.print_points()
 
         # Set the desired orientation for the end effector HERE
         request.ik_request.pose_stamped.pose.position.x = 0.689
@@ -57,6 +65,30 @@ def main():
         request.ik_request.pose_stamped.pose.orientation.z = 0.0
         request.ik_request.pose_stamped.pose.orientation.w = 0.0
         
+
+        # Send the request to the service
+        response = compute_ik(request)
+        
+        # Print the response HERE
+        # print(response)
+        group = MoveGroupCommander("right_arm")
+
+        # Setting position and orientation target
+        group.set_pose_target(request.ik_request.pose_stamped)
+
+        # TRY THIS
+        # Setting just the position without specifying the orientation
+        ###group.set_position_target([0.5, 0.5, 0.0])
+
+        # Plan IK
+        plan = group.plan()
+
+
+
+
+
+
+        return
         try:
             # Send the request to the service
             response = compute_ik(request)
