@@ -1,61 +1,100 @@
 import numpy as np
 
-class Pole:
-    def __init__(self, base, tip):
-        self.base = np.array(base)
-        self.tip = np.array(tip)
+# My previous work that I don't know is relevant anymore
+# - Wil
+# 
+# 
+# class Pole:
+#     def __init__(self, base, tip):
+#         self.base = np.array(base)
+#         self.tip = np.array(tip)
 
-        print(np.isclose(self.base, self.tip))
-        assert not all(np.isclose(self.base, self.tip)), "Both points on pole cannot overlap"
+#         print(np.isclose(self.base, self.tip))
+#         assert not all(np.isclose(self.base, self.tip)), "Both points on pole cannot overlap"
 
-        self.direction = (self.tip - self.base) / np.linalg.norm(self.tip - self.base)
+#         self.direction = (self.tip - self.base) / np.linalg.norm(self.tip - self.base)
 
-class RepulsionModel:
-    def __init__(self, pole, x_ef, k=1):
-        self.pole = pole
-        self.x_ef = np.array(x_ef)
-        self.k = k
+# class RepulsionModel:
+#     def __init__(self, pole, x_ef, k=1):
+#         self.pole = pole
+#         self.x_ef = np.array(x_ef)
+#         self.k = k
 
-    @property
-    def repulsion_force(self):
-        # Vector from pole base to x_ef
-        w = self.x_ef - self.pole.base
+#     @property
+#     def repulsion_force(self):
+#         # Vector from pole base to x_ef
+#         w = self.x_ef - self.pole.base
 
-        # Closest point on the pole
-        projection_length = np.dot(w, self.pole.direction)
-        closest_point = self.pole.base + projection_length * self.pole.direction
+#         # Closest point on the pole
+#         projection_length = np.dot(w, self.pole.direction)
+#         closest_point = self.pole.base + projection_length * self.pole.direction
 
-        # Direction of repulsion
-        repulsion_vector = self.x_ef - closest_point
-        distance = np.linalg.norm(repulsion_vector)
+#         # Direction of repulsion
+#         repulsion_vector = self.x_ef - closest_point
+#         distance = np.linalg.norm(repulsion_vector)
 
-        # Handle edge case: avoid division by zero
-        if distance == 0:
-            return np.zeros_like(repulsion_vector)
+#         # Handle edge case: avoid division by zero
+#         if distance == 0:
+#             return np.zeros_like(repulsion_vector)
 
-        # Repulsion force (inverse square law, scaled by k)
-        return (repulsion_vector / distance**3) * self.k
+#         # Repulsion force (inverse square law, scaled by k)
+#         return (repulsion_vector / distance**3) * self.k
     
+# Hyperparameter
+BETA = 1 # := proportion the magnitism matters (vs. the distance to goal)
 
 class MotionPlanner:
-    def __init__(self, point_range, num_samples):
-        self.points = []
-        for _ in range(num_samples):
-            self.points.append(self.get_random_point(point_range[0], point_range[1]))
-
     @staticmethod
     def get_random_point(a, b):
         return [np.random.uniform(a, b), np.random.uniform(a, b), np.random.uniform(a, b)]
 
-    def optimize(self, goal_point, pole_point, beta):
+    @staticmethod
+    def closest_point_on_pole(point, pole_point_1, pole_point_2):
+        point = np.array(point)
+        pole_point_1, pole_point_2 = np.array(pole_point_1), np.array(pole_point_2)
+        pole_to_point_vector = point - pole_point_1
+        pole_direction = (pole_point_2 - pole_point_1) / np.linalg.norm(pole_point_2 - pole_point_1)          
+        projection_length = np.dot(pole_to_point_vector, pole_direction)
+        pole_length = np.linalg.norm(pole_point_2 - pole_point_1)
+        projection_length = max(0, min(projection_length, pole_length))
+        closest_point = pole_point_1 + projection_length * pole_direction
+        return closest_point
+
+
+    def __init__(self, point_range, num_samples):
+        self.points = []
+        for _ in range(num_samples):
+            self.points.append(self.get_random_point(point_range[0], point_range[1]))
+    
+    def get_all_losses(self, goal_point, pole_point_1, pole_point_2):
+        assert self.points, "self.points must be defined first"
+
+        pole_point_1, pole_point_2 = np.array(pole_point_1), np.array(pole_point_2)
+        optimized = self.optimize(goal_point, pole_point_1, pole_point_2, BETA)
+        print("Optimized:", optimized)
+
+    def optimize(self, goal_point, pole_point_1, pole_point_2, beta):
         fin_arr = []
         for point in self.points:
-            goal_point, pole_point, point = np.array(goal_point), np.array(pole_point). np.array(point)
-            dist_to_goal = np.norm(goal_point - point)
-            dist_to_pole = np.norm(pole_point - point)
-            cost = cost(dist_to_goal, dist_to_pole, beta)
+            goal_point = np.array(goal_point)
+            dist_to_goal = np.linalg.norm(goal_point - point)
+            dist_to_pole = np.linalg.norm(self.closest_point_on_pole(point, pole_point_1, pole_point_2) - point)
+            cost = self.cost(dist_to_goal, dist_to_pole, beta)
+            print("Point =", point)
+            print(f"Cost = {cost}")
             fin_arr.append(cost)
         return self.points[np.argmin(np.array(fin_arr))]
     
+    @staticmethod
     def cost(dist_to_goal, dist_to_pole, beta):
+        # print(f"DEBUG: dist_to_goal = {dist_to_goal}, dist_to_pole = {dist_to_pole}, beta = {beta}")
         return dist_to_goal + beta * 1/dist_to_pole**2
+    
+    # Debug functions
+    def print_points(self):
+        print("Points are:")
+        for point in self.points:
+            print(f"- {point}")
+
+    def print_losses(self):
+        self.get_all_losses([1,1,1], [0,0,0], [.5, .5, .5])

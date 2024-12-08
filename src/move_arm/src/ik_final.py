@@ -28,9 +28,9 @@ def main():
         #### /SETUP ####
 
 
-        motion_planner = MotionPlanner((0, 2), 50)
-        print("DEBUG Points are", motion_planner)
-
+        motion_planner = MotionPlanner((0, 1), 10)
+        # motion_planner.print_points()
+        motion_planner.print_losses()
     
         # Set the desired orientation for the end effector HERE
         request.ik_request.pose_stamped.pose.position.x = 0.5
@@ -46,7 +46,7 @@ def main():
             response = compute_ik(request)
             
             # Print the response HERE
-            print(response)
+            # print(response)
             group = MoveGroupCommander("right_arm")
 
             # Setting position and orientation target
