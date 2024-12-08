@@ -45,8 +45,23 @@ BETA = .25 # := proportion the magnitism matters (vs. the distance to goal)
 
 class MotionPlanner:
     @staticmethod
-    def get_random_point(a, b):
-        return [np.random.uniform(a, b), np.random.uniform(a, b), np.random.uniform(a, b)]
+    def get_random_point(point, sphere_radius):
+        """ 
+            Unfiromally samples a point in the sphere centered at `point` and of radius `sphere_radius`
+            Credit: ChatGPT 4o 
+        """
+        
+        # Step 1: Sample a random direction uniformly on the surface of a unit sphere
+        direction = np.random.normal(0, 1, size=point.shape)
+        direction /= np.linalg.norm(direction)  # Normalize to get a unit vector
+
+        # Step 2: Sample a random distance within the sphere
+        distance = sphere_radius * np.cbrt(np.random.uniform(0, 1))  # Scale uniformly
+
+        # Step 3: Generate the random point
+        random_point = point + direction * distance
+        return random_point        
+        # return [np.random.uniform(a, b), np.random.uniform(a, b), np.random.uniform(a, b)]
 
     @staticmethod
     def closest_point_on_pole(point, pole_point_1, pole_point_2):
@@ -61,10 +76,10 @@ class MotionPlanner:
         return closest_point
 
 
-    def __init__(self, point_range, num_samples):
+    def __init__(self, point, sphere_radius, num_samples):
         self.points = []
         for _ in range(num_samples):
-            self.points.append(self.get_random_point(point_range[0], point_range[1]))
+            self.points.append(self.get_random_point(point, sphere_radius))
 
     def optimize(self, goal_point, pole_point_1, pole_point_2, beta):
         assert self.points, "self.points must be defined first"

@@ -28,60 +28,56 @@ def main():
         #### /SETUP ####
 
 
+        START_EF_POSITION = (0.816, 0.161, 0.642) # TODO: fix with a subscriber
         NUM_SAMPLES = 10_000
         CUSTOM_BETA = 0.25 # idk what this should be yet. Recall 0 means no magnetic force
         MAX_DIST_POLE = 1 # meters
         POLE_POINT_1 = (0.689, -1.000, 0) # TODO: vision
         POLE_POINT_2 = (0.689, -1.000, 2) # TODO: vision
+        # Starting posn at regular tuck: (0.689,  0.161, 0.381)
+        # Starting posn at custom  tuck: (0.816, -0.161, 0.642)
         GOAL = (0.689, -0.300, 0.382)     # TODO: vision
-        NUM_STEPS = 10 # the number of increasing spheres
+        NUM_STEPS = 5 # the number of increasing spheres
 
         
-        STEP_SIZE = int(MAX_DIST_POLE / NUM_STEPS)
+        STEP_SIZE = MAX_DIST_POLE / NUM_STEPS
 
-        motion_planner = MotionPlanner((-MAX_DIST_POLE, MAX_DIST_POLE), NUM_SAMPLES)
-        motion_planner.print_points()
-
-        optimized = motion_planner.optimize(GOAL, POLE_POINT_1, POLE_POINT_2, CUSTOM_BETA)
-        print("Optimized:", optimized)
-
+        ef_posn = np.array(START_EF_POSITION)
 
         # for each increasing sphere...
-        for step in range(STEP_SIZE):
-            motion_planner = MotionPlanner((-step * STEP_SIZE, step * STEP_SIZE), NUM_SAMPLES)
+        for step in range(1): # range(STEP_SIZE):
+            # 1-index step or else you get 0 on the first step
+            motion_planner = MotionPlanner(ef_posn, (step + 1) * STEP_SIZE, NUM_SAMPLES)
             motion_planner.print_points()
+            print(STEP_SIZE)
+            optimized = motion_planner.optimize(GOAL, POLE_POINT_1, POLE_POINT_2, CUSTOM_BETA)
+            print(f"Optimized (step {step}):", optimized)
+            request.ik_request.pose_stamped.pose.position.x = optimized[0]
+            request.ik_request.pose_stamped.pose.position.y = optimized[1]
+            request.ik_request.pose_stamped.pose.position.z = optimized[2] 
 
-        # Set the desired orientation for the end effector HERE
-        request.ik_request.pose_stamped.pose.position.x = 0.689
-        request.ik_request.pose_stamped.pose.position.y = -0.300
-        request.ik_request.pose_stamped.pose.position.z = 0.382 
-
-        # request.ik_request.pose_stamped.pose.position.x = optimized[0]
-        # request.ik_request.pose_stamped.pose.position.y = optimized[1]
-        # request.ik_request.pose_stamped.pose.position.z = optimized[2] 
-
-        request.ik_request.pose_stamped.pose.orientation.x = 0.0
-        request.ik_request.pose_stamped.pose.orientation.y = 1.0
-        request.ik_request.pose_stamped.pose.orientation.z = 0.0
-        request.ik_request.pose_stamped.pose.orientation.w = 0.0
+            request.ik_request.pose_stamped.pose.orientation.x = -0.018
+            request.ik_request.pose_stamped.pose.orientation.y = 0.742
+            request.ik_request.pose_stamped.pose.orientation.z = -0.018
+            request.ik_request.pose_stamped.pose.orientation.w = 0.670
         
 
-        # Send the request to the service
-        response = compute_ik(request)
-        
-        # Print the response HERE
-        # print(response)
-        group = MoveGroupCommander("right_arm")
+            # Send the request to the service
+            response = compute_ik(request)
+            
+            # Print the response HERE
+            # print(response)
+            group = MoveGroupCommander("right_arm")
 
-        # Setting position and orientation target
-        group.set_pose_target(request.ik_request.pose_stamped)
+            # Setting position and orientation target
+            group.set_pose_target(request.ik_request.pose_stamped)
 
-        # TRY THIS
-        # Setting just the position without specifying the orientation
-        ###group.set_position_target([0.5, 0.5, 0.0])
+            # TRY THIS
+            # Setting just the position without specifying the orientation
+            ###group.set_position_target([0.5, 0.5, 0.0])
 
-        # Plan IK
-        plan = group.plan()
+            # Plan IK
+            plan = group.plan()
 
 
 
