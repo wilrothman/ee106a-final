@@ -12,7 +12,7 @@ ee106a-aiz API code: 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
 - `roslaunch sawyer_moveit_config sawyer_moveit.launch electric_gripper:=true`
 
 **Window 3**
-- source ~ee106a/sawyer_setup.bash
+- `source ~ee106a/sawyer_setup.bash`
 
 ## Common commands
 Once you have set up everything, here is how to run the following commands.
