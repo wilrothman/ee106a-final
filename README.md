@@ -31,9 +31,6 @@ Once you have set up everything, here is how to run the following commands.
 **ik_final**
 - `rosrun move_arm ik_final.py`
 
-
-## Specific Commands
-
 **Get gripper position and orientation**
 - `rosrun tf tf_echo base right_gripper_tip`
 
