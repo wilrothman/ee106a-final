@@ -23,7 +23,7 @@ Once you have set up everything, here is how to run the following commands.
 - `roslaunch intera_examples sawyer_tuck.launch`
 
 **Custom tuck**
-- `roslaunch move_arm custom_saqwyer_tuck.launch`
+- `roslaunch move_arm custom_sawyer_tuck.launch`
 
 **Lab 5 MoveIt example (for testing movement)**
 - `catkin_make`
