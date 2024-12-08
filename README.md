@@ -26,8 +26,6 @@ Once you have set up everything, here is how to run the following commands.
 - `roslaunch move_arm custom_sawyer_tuck.launch`
 
 **Lab 5 MoveIt example (for testing movement)**
-- `catkin_make`
-- `source devel/setup.bash`
 - `rosrun move_arm ik_example.py`
 
 **ik_final**
