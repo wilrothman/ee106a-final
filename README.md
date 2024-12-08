@@ -13,6 +13,8 @@ ee106a-aiz API code: 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
 
 **Window 3**
 - `source ~ee106a/sawyer_setup.bash`
+- `catkin_make`
+- `source devel/setup.bash`
 
 ## Common commands
 Once you have set up everything, here is how to run the following commands.
@@ -29,8 +31,6 @@ Once you have set up everything, here is how to run the following commands.
 - `rosrun move_arm ik_example.py`
 
 **ik_final**
-- `catkin_make`
-- `source devel/setup.bash`
 - `rosrun move_arm ik_final.py`
 
 
