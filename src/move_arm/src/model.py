@@ -41,7 +41,7 @@ import numpy as np
 #         return (repulsion_vector / distance**3) * self.k
     
 # Hyperparameter
-BETA = 1 # := proportion the magnitism matters (vs. the distance to goal)
+BETA = .25 # := proportion the magnitism matters (vs. the distance to goal)
 
 class MotionPlanner:
     @staticmethod
@@ -65,23 +65,18 @@ class MotionPlanner:
         self.points = []
         for _ in range(num_samples):
             self.points.append(self.get_random_point(point_range[0], point_range[1]))
-    
-    def get_all_losses(self, goal_point, pole_point_1, pole_point_2):
-        assert self.points, "self.points must be defined first"
-
-        pole_point_1, pole_point_2 = np.array(pole_point_1), np.array(pole_point_2)
-        optimized = self.optimize(goal_point, pole_point_1, pole_point_2, BETA)
-        print("Optimized:", optimized)
 
     def optimize(self, goal_point, pole_point_1, pole_point_2, beta):
+        assert self.points, "self.points must be defined first"
+
         fin_arr = []
         for point in self.points:
             goal_point = np.array(goal_point)
             dist_to_goal = np.linalg.norm(goal_point - point)
             dist_to_pole = np.linalg.norm(self.closest_point_on_pole(point, pole_point_1, pole_point_2) - point)
             cost = self.cost(dist_to_goal, dist_to_pole, beta)
-            print("Point =", point)
-            print(f"Cost = {cost}")
+            # print("Point =", point)
+            # print(f"Cost = {cost}")
             fin_arr.append(cost)
         return self.points[np.argmin(np.array(fin_arr))]
     
@@ -96,5 +91,5 @@ class MotionPlanner:
         for point in self.points:
             print(f"- {point}")
 
-    def print_losses(self):
-        self.get_all_losses([1,1,1], [0,0,0], [.5, .5, .5])
+    # def print_losses(self, goal_point, pole_point_1, pole_point_2):
+    #     self.get_all_losses(goal_point, pole_point_1, pole_point_2)

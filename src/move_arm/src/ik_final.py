@@ -28,14 +28,30 @@ def main():
         #### /SETUP ####
 
 
-        motion_planner = MotionPlanner((0, 1), 10)
-        # motion_planner.print_points()
-        motion_planner.print_losses()
-    
+
+        # TEMPORARY VARIABLE WHILE VISION DOESNT WORK
+        # TEMP_POLE_POINT_1, TEMP_POLE_POINT_2 = (), ()
+
+        MAX_DIST_POLE = 1 # meters
+        motion_planner = MotionPlanner((-MAX_DIST_POLE, MAX_DIST_POLE), 10000)
+        motion_planner.print_points()
+
+        # Built-In Tuck --> Goal
+        # (0.689, 0.161, 0.382) --> (0.689, -0.300, 0.382)
+        # But a (0.689, -1.000, ) pole is in its path!
+
+        optimized = motion_planner.optimize((0.689, -0.300, 0.382), (0.689, -1.000, 0), (0.689, -1.000, 2), BETA)
+        print("Optimized:", optimized)
+
         # Set the desired orientation for the end effector HERE
-        request.ik_request.pose_stamped.pose.position.x = 0.5
-        request.ik_request.pose_stamped.pose.position.y = 0.5
-        request.ik_request.pose_stamped.pose.position.z = 0.0        
+        request.ik_request.pose_stamped.pose.position.x = 0.689
+        request.ik_request.pose_stamped.pose.position.y = -0.300
+        request.ik_request.pose_stamped.pose.position.z = 0.382 
+
+        # request.ik_request.pose_stamped.pose.position.x = optimized[0]
+        # request.ik_request.pose_stamped.pose.position.y = optimized[1]
+        # request.ik_request.pose_stamped.pose.position.z = optimized[2] 
+
         request.ik_request.pose_stamped.pose.orientation.x = 0.0
         request.ik_request.pose_stamped.pose.orientation.y = 1.0
         request.ik_request.pose_stamped.pose.orientation.z = 0.0
