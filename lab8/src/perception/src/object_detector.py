@@ -83,8 +83,8 @@ class ObjectDetector:
         # Run `python hsv_color_thresholder.py` and tune the bounds so you only see your cup
         # update lower_hsv and upper_hsv directly
 
-        lower_hsv = np.array([22, 86, 52]) # TODO: Define lower HSV values for cup color
-        upper_hsv = np.array([80, 255, 203]) # TODO: Define upper HSV values for cup color
+        lower_hsv = np.array([34, 66, 48]) # TODO: Define lower HSV values for cup color
+        upper_hsv = np.array([79, 255, 255]) # TODO: Define upper HSV values for cup color
 
         # TODO: Threshold the image to get only cup colors
         # HINT: Lookup cv2.inRange()
@@ -116,8 +116,8 @@ class ObjectDetector:
 
             # Convert the (X, Y, Z) coordinates from camera frame to odom frame
             try:
-                self.tf_listener.waitForTransform("/odom", "/camera_link", rospy.Time(), rospy.Duration(10.0))
-                point_odom = self.tf_listener.transformPoint("/odom", PointStamped(header=Header(stamp=rospy.Time(), frame_id="/camera_link"), point=Point(camera_link_x, camera_link_y, camera_link_z)))
+                self.tf_listener.waitForTransform("/base_footprint", "/camera_link", rospy.Time(), rospy.Duration(10.0))
+                point_odom = self.tf_listener.transformPoint("/base_footprint", PointStamped(header=Header(stamp=rospy.Time(), frame_id="/camera_link"), point=Point(camera_link_x, camera_link_y, camera_link_z)))
                 X_odom, Y_odom, Z_odom = point_odom.point.x, point_odom.point.y, point_odom.point.z
                 print("Real-world coordinates in odom frame: (X, Y, Z) = ({:.2f}m, {:.2f}m, {:.2f}m)".format(X_odom, Y_odom, Z_odom))
 

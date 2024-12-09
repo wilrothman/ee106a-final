@@ -97,7 +97,7 @@ def main():
 
             # Plan IK
             plan = group.plan()
-            user_input = input("Enter 'y' if the trajectory looks safe on RVIZ")
+            user_input = input("Enter 'y' if the trajectory looks safe on RVIZ ")
             
             # Execute IK if safe
             if user_input == 'y':
