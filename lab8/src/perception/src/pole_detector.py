@@ -16,9 +16,9 @@ from std_msgs.msg import Header
 
 PLOTS_DIR = os.path.join(os.getcwd(), 'plots')
 
-class ObjectDetector:
+class PoleDetector:
     def __init__(self):
-        rospy.init_node('object_detector', anonymous=True)
+        rospy.init_node('pole_detector', anonymous=True)
 
         self.bridge = CvBridge()
 
@@ -114,19 +114,19 @@ class ObjectDetector:
             camera_link_y /= 1000
             camera_link_z /= 1000
 
-            # Convert the (X, Y, Z) coordinates from camera frame to odom frame
+            # Convert the (X, Y, Z) coordinates from camera frame to base frame
             try:
                 self.tf_listener.waitForTransform("/base", "/camera_link", rospy.Time(), rospy.Duration(10.0))
-                point_odom = self.tf_listener.transformPoint("/base", PointStamped(header=Header(stamp=rospy.Time(), frame_id="/camera_link"), point=Point(camera_link_x, camera_link_y, camera_link_z)))
-                X_odom, Y_odom, Z_odom = point_odom.point.x, point_odom.point.y, point_odom.point.z
-                print("Real-world coordinates in odom frame: (X, Y, Z) = ({:.2f}m, {:.2f}m, {:.2f}m)".format(X_odom, Y_odom, Z_odom))
+                point_base = self.tf_listener.transformPoint("/base", PointStamped(header=Header(stamp=rospy.Time(), frame_id="/camera_link"), point=Point(camera_link_x, camera_link_y, camera_link_z)))
+                X_base, Y_base, Z_base = point_base.point.x, point_base.point.y, point_base.point.z
+                print("Real-world coordinates in base frame: (X, Y, Z) = ({:.2f}m, {:.2f}m, {:.2f}m)".format(X_base, Y_base, Z_base))
 
-                if X_odom < 0.001 and X_odom > -0.001:
+                if X_base < 0.001 and X_base > -0.001:
                     print("Erroneous goal point, not publishing - Is the cup too close to the camera?")
                 else:
-                    print("Publishing goal point: ", X_odom, Y_odom, Z_odom)
+                    print("Publishing goal point: ", X_base, Y_base, Z_base)
                     # Publish the transformed point
-                    self.point_pub.publish(Point(X_odom, Y_odom, Z_odom))
+                    self.point_pub.publish(Point(X_base, Y_base, Z_base))
 
                     # Overlay cup points on color image for visualization
                     cup_img = self.cv_color_image.copy()
@@ -141,4 +141,4 @@ class ObjectDetector:
                 return
 
 if __name__ == '__main__':
-    ObjectDetector()
+    PoleDetector()
