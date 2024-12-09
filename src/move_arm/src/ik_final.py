@@ -70,7 +70,7 @@ def main():
             group = MoveGroupCommander("right_arm")
 
             # Setting position and orientation target
-            group.set_pose_target(req/robot/joint_statesuest.ik_request.pose_stamped)
+            group.set_pose_target(request.ik_request.pose_stamped)
 
             # TRY THIS
             # Setting just the position without specifying the orientation
