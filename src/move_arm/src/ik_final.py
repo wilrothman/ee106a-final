@@ -80,11 +80,6 @@ def main():
             plan = group.plan()
 
 
-
-
-
-
-        return
         try:
             # Send the request to the service
             response = compute_ik(request)
