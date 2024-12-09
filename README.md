@@ -1,4 +1,7 @@
-ee106a-aiz API code: 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
+ee106a-aiz 
+G8862wgF3Y
+
+API code: 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
 
 ## Setup steps
 **Window 1**
