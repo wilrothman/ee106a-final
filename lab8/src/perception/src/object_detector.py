@@ -116,8 +116,8 @@ class ObjectDetector:
 
             # Convert the (X, Y, Z) coordinates from camera frame to odom frame
             try:
-                self.tf_listener.waitForTransform("/base_footprint", "/camera_link", rospy.Time(), rospy.Duration(10.0))
-                point_odom = self.tf_listener.transformPoint("/base_footprint", PointStamped(header=Header(stamp=rospy.Time(), frame_id="/camera_link"), point=Point(camera_link_x, camera_link_y, camera_link_z)))
+                self.tf_listener.waitForTransform("/base", "/camera_link", rospy.Time(), rospy.Duration(10.0))
+                point_odom = self.tf_listener.transformPoint("/base", PointStamped(header=Header(stamp=rospy.Time(), frame_id="/camera_link"), point=Point(camera_link_x, camera_link_y, camera_link_z)))
                 X_odom, Y_odom, Z_odom = point_odom.point.x, point_odom.point.y, point_odom.point.z
                 print("Real-world coordinates in odom frame: (X, Y, Z) = ({:.2f}m, {:.2f}m, {:.2f}m)".format(X_odom, Y_odom, Z_odom))
 
