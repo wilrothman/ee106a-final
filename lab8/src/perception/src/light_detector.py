@@ -38,7 +38,7 @@ class LightDetector:
         self.tf_listener = tf.TransformListener()  # Create a TransformListener object
 
         self.point_pub = rospy.Publisher("goal_point", Point, queue_size=10)
-        self.image_pub = rospy.Publisher('detected_cup', Image, queue_size=10)
+        self.image_pub = rospy.Publisher('detected_light', Image, queue_size=10)
 
         rospy.spin()
 
