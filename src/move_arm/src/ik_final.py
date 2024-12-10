@@ -4,6 +4,7 @@ from moveit_msgs.srv import GetPositionIK, GetPositionIKRequest, GetPositionIKRe
 from geometry_msgs.msg import PoseStamped, Point, Pose, Quaternion
 from moveit_commander import MoveGroupCommander
 import numpy as np
+from tf.transformations import quaternion_from_euler
 from numpy import linalg
 import sys
 from model import *
@@ -42,7 +43,6 @@ class IKFinal:
             START_EF_POSITION = (0.816, 0.161, 0.642) # TODO: fix with a subscriber
             NUM_SAMPLES = 10_000
             CUSTOM_BETA = 0.0125 # [0, 0.05]
-            MAX_DIST_POLE = 1 # meters
             # POLE_POINT_1 = self.POLE_POS # TODO: vision
             # POLE_POINT_2 = (self.POLE_POS[0], self.POLE_POS[1], self.POLE_POS[2] + 0.85) # TODO: vision
 
@@ -54,12 +54,14 @@ class IKFinal:
             # GOAL = self.LIGHT_POS     # TODO: vision
 
             GOAL = (0.950, 0.161, 0.100) 
-            
-            NUM_STEPS = 6 # the number of increasing spheres
+            MAX_DIST_POLE = np.linalg.norm(np.array(START_EF_POSITION) - np.array(GOAL)) # meters
+
+            NUM_STEPS = 10 # the number of increasing spheres
             
             STEP_SIZE = MAX_DIST_POLE / NUM_STEPS
 
             ef_posn = np.array(START_EF_POSITION)
+            print(f"Pole is distance {MAX_DIST_POLE} from tuck.\nStep Size= {MAX_DIST_POLE}meters / {NUM_STEPS}steps = {STEP_SIZE}meters/step")
 
             waypoints = []
             # for each increasing sphere...
@@ -82,10 +84,18 @@ class IKFinal:
                         return arr2
                 
                 ef_posn = optimal_argmin(ef_posn, optimized, GOAL)
-                waypoints.append(ef_posn)
 
                 print(f"\nEF Position(step {step}):", optimized)
-                print(f"Distance to goal (step {step}): {np.linalg.norm(ef_posn - np.array(GOAL))}\n")
+                print(f"Distance to goal (step {step}): {np.linalg.norm(ef_posn - np.array(GOAL))}")
+
+                if all(ef_posn == optimized) or step == 0:
+                    waypoints.append(ef_posn)
+                    print("New waypoint added.")
+                else:
+                    print("Discarded waypoint candidate.")
+                print()
+
+
                 request.ik_request.pose_stamped.pose.position.x = optimized[0]
                 request.ik_request.pose_stamped.pose.position.y = optimized[1]
                 request.ik_request.pose_stamped.pose.position.z = optimized[2] 
