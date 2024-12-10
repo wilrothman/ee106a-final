@@ -14,8 +14,8 @@ class IKFinal:
         self.POLE_POS = None
         self.LIGHT_POS = None
 
-        pole_sub  =  rospy.Subscriber("goal_point", Point, self.pole_callback)
-        light_sub = rospy.Subscriber("goal_point", Point, self.light_callback)
+        # pole_sub  =  rospy.Subscriber("goal_point", Point, self.pole_callback)
+        # light_sub = rospy.Subscriber("goal_point", Point, self.light_callback)
 
         # Wait for the IK service to become available
         rospy.wait_for_service('compute_ik')
@@ -35,20 +35,26 @@ class IKFinal:
             request.ik_request.pose_stamped.header.frame_id = "base"
             #### /SETUP ####
 
-            print("Pole positions")
-            print(self.POLE_POS)
+            # print("Pole positions")
+            # print(self.POLE_POS)
 
             START_EF_POSITION = (0.816, 0.161, 0.642) # TODO: fix with a subscriber
             NUM_SAMPLES = 10_000
             CUSTOM_BETA = 0.25 # idk what this should be yet. Recall 0 means no magnetic force
             MAX_DIST_POLE = 1 # meters
-            POLE_POINT_1 = self.POLE_POS # TODO: vision
-            POLE_POINT_2 = (self.POLE_POS[0], self.POLE_POS[1], self.POLE_POS[2] + 0.85) # TODO: vision
+            # POLE_POINT_1 = self.POLE_POS # TODO: vision
+            # POLE_POINT_2 = (self.POLE_POS[0], self.POLE_POS[1], self.POLE_POS[2] + 0.85) # TODO: vision
+
+            POLE_POINT_1 = (0.689, -1.000, 0) # TODO: vision
+            POLE_POINT_2 = (0.689, -1.000, 2) # TODO: vision
+
             # Starting posn at regular tuck: (0.689,  0.161, 0.381)
             # Starting posn at custom  tuck: (0.816, -0.161, 0.642)
-            GOAL = self.LIGHT_POS     # TODO: vision
-            NUM_STEPS = 5 # the number of increasing spheres
+            # GOAL = self.LIGHT_POS     # TODO: vision
 
+            GOAL = (0.689, -0.300, 0.382)
+            
+            NUM_STEPS = 5 # the number of increasing spheres
             
             STEP_SIZE = MAX_DIST_POLE / NUM_STEPS
 
