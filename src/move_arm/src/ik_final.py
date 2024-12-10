@@ -67,7 +67,7 @@ class IKFinal:
             GOAL = (0.950, 0.161, 0.100) 
             MAX_DIST_POLE = np.linalg.norm(np.array(START_EF_POSITION) - np.array(GOAL)) # meters
 
-            NUM_STEPS = 10 # the number of increasing spheres
+            NUM_STEPS = 5 # the number of increasing spheres
             
             STEP_SIZE = MAX_DIST_POLE / NUM_STEPS
 
