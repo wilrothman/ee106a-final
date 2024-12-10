@@ -8,6 +8,7 @@ from tf.transformations import quaternion_from_euler
 from numpy import linalg
 import sys
 from model import *
+import roslaunch
 
 
 class IKFinal:
@@ -152,6 +153,50 @@ class IKFinal:
                 user_input = input("Enter 'y' if the trajectory looks safe on RVIZ: ")
                 if user_input == 'y':
                     group.execute(cartesian_plan, wait=True)
+
+                ### Path reversal ###
+
+                reversed_waypoints = list(reversed(waypoints))
+
+                # Plan the Cartesian path for the reversed waypoints
+                (reverse_cartesian_plan, reverse_fraction) = group.compute_cartesian_path(
+                    [Pose(
+                        position=Point(x=point[0], y=point[1], z=point[2]),
+                        orientation=Quaternion(x=-0.018, y=0.742, z=-0.018, w=0.670)
+                    ) for point in reversed_waypoints],  # List of reversed waypoints
+                    0.01,  # e.g., 1 cm resolution
+                    0.0    # Jump threshold
+                )
+
+                if reverse_fraction < 1.0:
+                    rospy.logwarn("Only a partial trajectory was computed for the reversed path. Fraction: {}".format(reverse_fraction))
+                else:
+                    rospy.loginfo("Successfully computed a full reversed trajectory to tuck position.")
+
+                # Execute the reversed Cartesian path
+                user_input = input("Enter 'y' if the reversed trajectory looks safe on RVIZ: ")
+                if user_input == 'y':
+                    group.execute(reverse_cartesian_plan, wait=True)
+
+                rospy.loginfo("Starting the tuck process...")
+
+                # Launch the tuck action
+                uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
+                roslaunch.configure_logging(uuid)
+                tuck_launch = roslaunch.parent.ROSLaunchParent(
+                    uuid, ["src/move_arm/launch/custom_sawyer_tuck.launch"]
+                )
+
+                tuck_launch.start()
+                rospy.loginfo("Tuck launch initiated.")
+
+                # Wait for the tuck to complete or stop manually
+                tuck_launch.spin()
+
+                rospy.loginfo("Tuck process completed.")
+
+
+                break
 
                 # # Send the request to the service
                 # response = compute_ik(request)

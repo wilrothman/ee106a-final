@@ -6,6 +6,7 @@ from moveit_commander import MoveGroupCommander
 import numpy as np
 from numpy import linalg
 import sys
+import roslaunch
 
 class IKFinal:
     def __init__(self):
