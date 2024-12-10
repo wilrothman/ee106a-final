@@ -110,7 +110,7 @@ class MotionPlanner:
     @staticmethod
     def cost(dist_to_goal, total_joints_dist, beta):
         # print(f"DEBUG: dist_to_goal = {dist_to_goal}, dist_to_pole = {dist_to_pole}, beta = {beta}")     
-        return dist_to_goal**2 + beta * total_joints_dist
+        return dist_to_goal + beta * total_joints_dist
     
     def find_joint_dist_penalization(self, ef_point, joint_positions, pole_point_1, pole_point_2):
         total_joint_dists = 0

@@ -42,11 +42,11 @@ class IKFinal:
             NUM_SAMPLES = 10_000
             CUSTOM_BETA = 0.25 # idk what this should be yet. Recall 0 means no magnetic force
             MAX_DIST_POLE = 1 # meters
-            POLE_POINT_1 = (0.689, -1.000, 0) # TODO: vision
-            POLE_POINT_2 = (0.689, -1.000, 2) # TODO: vision
+            POLE_POINT_1 = self.POLE_POS # TODO: vision
+            POLE_POINT_2 = (self.POLE_POS[0], self.POLE_POS[1], self.POLE_POS[2] + 0.85) # TODO: vision
             # Starting posn at regular tuck: (0.689,  0.161, 0.381)
             # Starting posn at custom  tuck: (0.816, -0.161, 0.642)
-            GOAL = self.POLE_POS     # TODO: vision
+            GOAL = self.LIGHT_POS     # TODO: vision
             NUM_STEPS = 5 # the number of increasing spheres
 
             
@@ -118,11 +118,11 @@ class IKFinal:
 
     # Coordinate deconstruction callback for pole subscriber
     def pole_callback(self, msg):
-        self.POLE_POS = (msg.x, msg.y, msg.z)
+        self.POLE_POS = (msg.x + 0.2, msg.y, msg.z)
     
     # Coordinate deconstruction callback for light subscriber
     def light_callback(self, msg):
-        self.LIGHT_POS = (msg.x, msg.y, msg.z)
+        self.LIGHT_POS = (msg.x + 0.1, msg.y, msg.z)
 
 
 # Python's syntax for a main() method

@@ -19,7 +19,6 @@ rosrun perception light_detector.py
 
 
 
-
 INFO:
 
 base frame of sawyer: "base"

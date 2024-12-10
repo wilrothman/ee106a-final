@@ -37,7 +37,7 @@ class PoleDetector:
 
         self.tf_listener = tf.TransformListener()  # Create a TransformListener object
 
-        self.point_pub = rospy.Publisher("goal_point", Point, queue_size=10)
+        self.point_pub = rospy.Publisher("pole_point", Point, queue_size=10)
         self.image_pub = rospy.Publisher('detected_pole', Image, queue_size=10)
 
         rospy.spin()
