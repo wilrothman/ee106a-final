@@ -41,21 +41,21 @@ class IKFinal:
 
             START_EF_POSITION = (0.816, 0.161, 0.642) # TODO: fix with a subscriber
             NUM_SAMPLES = 10_000
-            CUSTOM_BETA = 0.25 # idk what this should be yet. Recall 0 means no magnetic force
+            CUSTOM_BETA = 0.0125 # [0, 0.05]
             MAX_DIST_POLE = 1 # meters
             # POLE_POINT_1 = self.POLE_POS # TODO: vision
             # POLE_POINT_2 = (self.POLE_POS[0], self.POLE_POS[1], self.POLE_POS[2] + 0.85) # TODO: vision
 
-            POLE_POINT_1 = (0.689, -1.000, 0) # TODO: vision
-            POLE_POINT_2 = (0.689, -1.000, 2) # TODO: vision
+            POLE_POINT_1 = (0.900, 0.161, 0) # TODO: vision
+            POLE_POINT_2 = (0.900, 0.161, 2) # TODO: vision
 
             # Starting posn at regular tuck: (0.689,  0.161, 0.381)
             # Starting posn at custom  tuck: (0.816, -0.161, 0.642)
             # GOAL = self.LIGHT_POS     # TODO: vision
 
-            GOAL = (0.689, -0.300, 0.382)
+            GOAL = (0.950, 0.161, 0.100) 
             
-            NUM_STEPS = 5 # the number of increasing spheres
+            NUM_STEPS = 6 # the number of increasing spheres
             
             STEP_SIZE = MAX_DIST_POLE / NUM_STEPS
 

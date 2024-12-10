@@ -58,7 +58,7 @@ class MotionPlanner:
         direction /= np.linalg.norm(direction)  # Normalize to get a unit vector
 
         # Step 2: Sample a random distance within the sphere
-        distance = sphere_radius * np.cbrt(np.random.uniform(0, 1))  # Scale uniformly
+        distance = sphere_radius * np.cbrt(np.random.uniform(0, 0.5))  # Scale uniformly
 
         # Step 3: Generate the random point
         random_point = point + direction * distance
