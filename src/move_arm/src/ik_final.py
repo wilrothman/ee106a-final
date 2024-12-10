@@ -61,13 +61,28 @@ class IKFinal:
             ef_posn = np.array(START_EF_POSITION)
 
             # for each increasing sphere...
-            for step in range(1): # range(STEP_SIZE):
+            for step in range(NUM_STEPS):
                 # 1-index step or else you get 0 on the first step
                 motion_planner = MotionPlanner(ef_posn, (step + 1) * STEP_SIZE, NUM_SAMPLES)
                 # motion_planner.print_points()
-                print(STEP_SIZE)
+                # print(STEP_SIZE)
                 optimized = motion_planner.optimize(GOAL, POLE_POINT_1, POLE_POINT_2, CUSTOM_BETA)
-                print(f"Optimized (step {step}):", optimized)
+                # Do not update optimized if the current point is more optimal
+                def optimal_argmin(arr1, arr2, goal):
+                    if type(arr1) is not np.array:
+                        arr1 = np.array(arr1)
+                    if type(arr2) is not np.array:
+                        arr2 = np.array(arr2)
+
+                    if np.linalg.norm(arr1 - goal) < np.linalg.norm(arr2 - goal):
+                        return arr1
+                    else:
+                        return arr2
+                
+                ef_posn = optimal_argmin(ef_posn, optimized, GOAL)
+
+                print(f"\nEF Position(step {step}):", optimized)
+                print(f"Distance to goal (step {step}): {np.linalg.norm(ef_posn - np.array(GOAL))}\n")
                 request.ik_request.pose_stamped.pose.position.x = optimized[0]
                 request.ik_request.pose_stamped.pose.position.y = optimized[1]
                 request.ik_request.pose_stamped.pose.position.z = optimized[2] 
