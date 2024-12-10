@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 import rospy
 from moveit_msgs.srv import GetPositionIK, GetPositionIKRequest, GetPositionIKResponse
-from geometry_msgs.msg import PoseStamped, Point
+from geometry_msgs.msg import PoseStamped, Point, Pose, Quaternion
 from moveit_commander import MoveGroupCommander
 import numpy as np
 from numpy import linalg
 import sys
 from model import *
+
 
 class IKFinal:
     def __init__(self):
@@ -60,6 +61,7 @@ class IKFinal:
 
             ef_posn = np.array(START_EF_POSITION)
 
+            waypoints = []
             # for each increasing sphere...
             for step in range(NUM_STEPS):
                 # 1-index step or else you get 0 on the first step
@@ -80,6 +82,7 @@ class IKFinal:
                         return arr2
                 
                 ef_posn = optimal_argmin(ef_posn, optimized, GOAL)
+                waypoints.append(ef_posn)
 
                 print(f"\nEF Position(step {step}):", optimized)
                 print(f"Distance to goal (step {step}): {np.linalg.norm(ef_posn - np.array(GOAL))}\n")
@@ -112,27 +115,55 @@ class IKFinal:
 
 
             try:
-                # Send the request to the service
-                response = compute_ik(request)
-                
-                # Print the response HERE
-                # print(response)
                 group = MoveGroupCommander("right_arm")
 
-                # Setting position and orientation target
-                group.set_pose_target(request.ik_request.pose_stamped)
+                # Use the waypoints to generate a continuous Cartesian path
+                (cartesian_plan, fraction) = group.compute_cartesian_path(
+                    [Pose(
+                        # header=Header(frame_id="base"),
+                            position=Point(x=point[0], y=point[1], z=point[2]),
+                            orientation=Quaternion(x=-0.018, y=0.742, z=-0.018, w=0.670)
+                    ) for point in waypoints],  # List of waypoints
+                    0.01,  # e.g., 1 cm resolution
+                    0.0    # Jump threshold
+                )
 
-                # TRY THIS
-                # Setting just the position without specifying the orientation
+                if fraction < 1.0:
+                    rospy.logwarn("Only a partial trajectory was computed. Fraction: {}".format(fraction))
+                else:
+                    rospy.loginfo("Successfully computed a full trajectory through all waypoints.")
+
+                if fraction < 1.0:
+                    rospy.logwarn("Only a partial trajectory was computed. Fraction: {}".format(fraction))
+                else:
+                    rospy.loginfo("Successfully computed a full trajectory through all waypoints.")
+
+                # Execute the Cartesian path
+                user_input = input("Enter 'y' if the trajectory looks safe on RVIZ: ")
+                if user_input == 'y':
+                    group.execute(cartesian_plan, wait=True)
+
+                # # Send the request to the service
+                # response = compute_ik(request)
+                
+                # # Print the response HERE
+                # # print(response)
+                # group = MoveGroupCommander("right_arm")
+
+                # # Setting position and orientation target
+                # group.set_pose_target(request.ik_request.pose_stamped)
+
+                # # TRY THIS
+                # # Setting just the position without specifying the orientation
                 ###group.set_position_target([0.5, 0.5, 0.0])
 
                 # Plan IK
-                plan = group.plan()
-                user_input = input("Enter 'y' if the trajectory looks safe on RVIZ ")
+                # plan = group.plan()
+                # user_input = input("Enter 'y' if the trajectory looks safe on RVIZ ")
                 
-                # Execute IK if safe
-                if user_input == 'y':
-                    group.execute(plan[1])
+                # # Execute IK if safe
+                # if user_input == 'y':
+                #     group.execute(plan[1])
                 
             except rospy.ServiceException as e:
                 print("Service call failed: %s"%e)
