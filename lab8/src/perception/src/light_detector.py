@@ -57,6 +57,7 @@ class LightDetector:
         return X, Y, Z
 
     def color_image_callback(self, msg):
+        print("Color image callback running")
         try:
             # Convert the ROS Image message to an OpenCV image (BGR8 format)
             self.cv_color_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
@@ -69,6 +70,7 @@ class LightDetector:
             print("Error:", e)
 
     def depth_image_callback(self, msg):
+        print("Depth image callback running")
         try:
             # Convert the ROS Image message to an OpenCV image (16UC1 format)
             self.cv_depth_image = self.bridge.imgmsg_to_cv2(msg, "16UC1")

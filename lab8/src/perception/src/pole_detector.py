@@ -40,6 +40,7 @@ class PoleDetector:
         self.point_pub = rospy.Publisher("pole_point", Point, queue_size=10)
         self.image_pub = rospy.Publisher('detected_pole', Image, queue_size=10)
 
+        print('Spinning...')
         rospy.spin()
 
     def camera_info_callback(self, msg):
@@ -57,6 +58,7 @@ class PoleDetector:
         return X, Y, Z
 
     def color_image_callback(self, msg):
+        print("Color image callback")
         try:
             # Convert the ROS Image message to an OpenCV image (BGR8 format)
             self.cv_color_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
@@ -69,6 +71,8 @@ class PoleDetector:
             print("Error:", e)
 
     def depth_image_callback(self, msg):
+        print("Color image callback")
+
         try:
             # Convert the ROS Image message to an OpenCV image (16UC1 format)
             self.cv_depth_image = self.bridge.imgmsg_to_cv2(msg, "16UC1")
