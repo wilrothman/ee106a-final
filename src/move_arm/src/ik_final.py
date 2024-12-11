@@ -27,8 +27,8 @@ class IKFinal:
         self.POLE_POS = None
         self.LIGHT_POS = None
 
-        # pole_sub  =  rospy.Subscriber("goal_point", Point, self.pole_callback)
-        # light_sub = rospy.Subscriber("goal_point", Point, self.light_callback)
+        pole_sub  =  rospy.Subscriber("pole_point", Point, self.pole_callback)
+        light_sub = rospy.Subscriber("light_point", Point, self.light_callback)
 
         # Wait for the IK service to become available
         rospy.wait_for_service('compute_ik')
@@ -54,17 +54,17 @@ class IKFinal:
             START_EF_POSITION = (0.816, 0.161, 0.642) # TODO: fix with a subscriber
             NUM_SAMPLES = 30_000
             CUSTOM_BETA = 0.05 # [0, 0.05]
-            POLE_POINT_1 = self.POLE_POS # TODO: vision
-            POLE_POINT_2 = (self.POLE_POS[0], self.POLE_POS[1], self.POLE_POS[2] + 0.85) # TODO: vision
+            POLE_POINT_1 = self.POLE_POS
+            POLE_POINT_2 = (self.POLE_POS[0], self.POLE_POS[1], self.POLE_POS[2] + 0.85)
+            GOAL = self.LIGHT_POS
 
-            # POLE_POINT_1 = (0.600, 0.061, 0) # TODO: vision
-            # POLE_POINT_2 = (0.600, 0.061, 2) # TODO: vision
+            # POLE_POINT_1 = (0.600, 0.061, 0) # stubbing for tests
+            # POLE_POINT_2 = (0.600, 0.061, 2) # stubbing for tests
+            # GOAL = (0.850, 0.161, 0.100) # stubbing for tests
 
             # Starting posn at regular tuck: (0.689,  0.161, 0.381)
             # Starting posn at custom  tuck: (0.816, -0.161, 0.642)
-            # GOAL = self.LIGHT_POS     # TODO: vision
-
-            GOAL = (0.850, 0.161, 0.100) 
+            
             MAX_DIST_POLE = np.linalg.norm(np.array(START_EF_POSITION) - np.array(GOAL)) # meters
 
             NUM_STEPS = 6 # the number of increasing spheres
@@ -80,29 +80,15 @@ class IKFinal:
                 load_cache = CacheHandler('cache.json')
                 load_cache.load()
                 load_cache.get(GOAL)
-                
-                ef_posn = optimal_argmin(ef_posn, optimized, GOAL)
 
-                print(f"\nEF Position(step {step}):", optimized)
-                print(f"Distance to goal (step {step}): {np.linalg.norm([ef_posn[1], ef_posn[2]] - np.array([GOAL[1], GOAL[2]]))}")
-
-                if all(ef_posn == optimized) or step == 0:
-                    waypoints.append(ef_posn)
-                    print("New waypoint added.")
-                else:
-                    print("Discarded waypoint candidate.")
-                print()
-
-
-                request.ik_request.pose_stamped.pose.position.x = optimized[0]
-                request.ik_request.pose_stamped.pose.position.y = optimized[1]
-                request.ik_request.pose_stamped.pose.position.z = optimized[2] 
+                request.ik_request.pose_stamped.pose.position.x = load_cache.cache[0]
+                request.ik_request.pose_stamped.pose.position.y = load_cache.cache[1]
+                request.ik_request.pose_stamped.pose.position.z = load_cache.cache[2] 
 
                 request.ik_request.pose_stamped.pose.orientation.x = -0.018
                 request.ik_request.pose_stamped.pose.orientation.y = 0.742
                 request.ik_request.pose_stamped.pose.orientation.z = -0.018
                 request.ik_request.pose_stamped.pose.orientation.w = 0.670
-            
 
                 # Send the request to the service
                 response = compute_ik(request)
@@ -143,43 +129,41 @@ class IKFinal:
 
                     print(f"\nEF Position(step {step}):", optimized)
                     print(f"Distance to goal (step {step}): {np.linalg.norm(ef_posn - np.array(GOAL))}")
-                print(f"\nEF Position(step {step}):", optimized)
-                print(f"Distance to goal (step {step}): {np.linalg.norm([ef_posn[1], ef_posn[2]] - np.array([GOAL[1], GOAL[2]]))}")
-
-                if all(ef_posn == optimized) or step == 0:
-                    waypoints.append(ef_posn)
-                    print("New waypoint added.")
-                else:
-                    print("Discarded waypoint candidate.")
-                print()
-
-
-                request.ik_request.pose_stamped.pose.position.x = optimized[0]
-                request.ik_request.pose_stamped.pose.position.y = optimized[1]
-                request.ik_request.pose_stamped.pose.position.z = optimized[2] 
-
-                request.ik_request.pose_stamped.pose.orientation.x = -0.018
-                request.ik_request.pose_stamped.pose.orientation.y = 0.742
-                request.ik_request.pose_stamped.pose.orientation.z = -0.018
-                request.ik_request.pose_stamped.pose.orientation.w = 0.670
-            
-
-                # Send the request to the service
-                response = compute_ik(request)
                 
-                # Print the response HERE
-                # print(response)
-                group = MoveGroupCommander("right_arm")
+                    if all(ef_posn == optimized) or step == 0:
+                        waypoints.append(ef_posn)
+                        print("New waypoint added.")
+                    else:
+                        print("Discarded waypoint candidate.")
+                    print()
 
-                # Setting position and orientation target
-                group.set_pose_target(request.ik_request.pose_stamped)
 
-                # TRY THIS
-                # Setting just the position without specifying the orientation
-                ###group.set_position_target([0.5, 0.5, 0.0])
+                    request.ik_request.pose_stamped.pose.position.x = optimized[0]
+                    request.ik_request.pose_stamped.pose.position.y = optimized[1]
+                    request.ik_request.pose_stamped.pose.position.z = optimized[2] 
 
-                # Plan IK
-                plan = group.plan()
+                    request.ik_request.pose_stamped.pose.orientation.x = -0.018
+                    request.ik_request.pose_stamped.pose.orientation.y = 0.742
+                    request.ik_request.pose_stamped.pose.orientation.z = -0.018
+                    request.ik_request.pose_stamped.pose.orientation.w = 0.670
+                
+
+                    # Send the request to the service
+                    response = compute_ik(request)
+                    
+                    # Print the response HERE
+                    # print(response)
+                    group = MoveGroupCommander("right_arm")
+
+                    # Setting position and orientation target
+                    group.set_pose_target(request.ik_request.pose_stamped)
+
+                    # TRY THIS
+                    # Setting just the position without specifying the orientation
+                    ###group.set_position_target([0.5, 0.5, 0.0])
+
+                    # Plan IK
+                    plan = group.plan()
 
 
             try:
