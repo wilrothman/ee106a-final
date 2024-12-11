@@ -38,5 +38,8 @@ Once you have set up everything, here is how to run the following commands.
 **Get gripper position and orientation**
 - `rosrun tf tf_echo base right_gripper_tip`
 
+**Pygame**
+- `python3 display/grid.py -x 4 -y 2 -d 1600,800 -c 255,0,247`
+
 ??? Doc
 https://docs.google.com/document/d/1FzzBy37gV783baF9xRSmaKsRRo2vlI9W1f_YD7CHH_s/edit?tab=t.0
