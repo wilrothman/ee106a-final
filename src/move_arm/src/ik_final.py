@@ -9,10 +9,20 @@ from numpy import linalg
 import sys
 from model import *
 import roslaunch
+from cache import CacheHandler
+import argparse
 
+def parse_flags():
+    parser = argparse.ArgumentParser(description="IK Final")
+    parser.add_argument('-s' '--save', action='store_true', help="Save current path to cache")
+    parser.add_argument('-l', '--load', action='store_true', help="Attempt to load current path from cache")
+    args = parser.parse_args()
+
+    print(f"[ARGS] Boolean arguments:\nSave to Cache: {args.save}\nLoad from Cache: {args.load}.")
+    return args
 
 class IKFinal:
-    def __init__(self):
+    def __init__(self, args):
 
         self.POLE_POS = None
         self.LIGHT_POS = None
@@ -66,40 +76,14 @@ class IKFinal:
 
             waypoints = []
             # for each increasing sphere...
-            for step in range(NUM_STEPS):
-                # 1-index step or else you get 0 on the first step
-                motion_planner = MotionPlanner(ef_posn, (step + 1) * STEP_SIZE, NUM_SAMPLES)
-                # motion_planner.print_points()
-                # print(STEP_SIZE)
-                optimized = motion_planner.optimize(GOAL, POLE_POINT_1, POLE_POINT_2, CUSTOM_BETA)
-                # Do not update optimized if the current point is more optimal
-                def optimal_argmin(arr1, arr2, goal):
-                    if type(arr1) is not np.array:
-                        arr1 = np.array(arr1)
-                    if type(arr2) is not np.array:
-                        arr2 = np.array(arr2)
+            if args.load:
+                load_cache = CacheHandler('cache.json')
+                load_cache.load()
+                load_cache.get(GOAL)
 
-                    if np.linalg.norm(arr1 - goal) < np.linalg.norm(arr2 - goal):
-                        return arr1
-                    else:
-                        return arr2
-                
-                ef_posn = optimal_argmin(ef_posn, optimized, GOAL)
-
-                print(f"\nEF Position(step {step}):", optimized)
-                print(f"Distance to goal (step {step}): {np.linalg.norm(ef_posn - np.array(GOAL))}")
-
-                if all(ef_posn == optimized) or step == 0:
-                    waypoints.append(ef_posn)
-                    print("New waypoint added.")
-                else:
-                    print("Discarded waypoint candidate.")
-                print()
-
-
-                request.ik_request.pose_stamped.pose.position.x = optimized[0]
-                request.ik_request.pose_stamped.pose.position.y = optimized[1]
-                request.ik_request.pose_stamped.pose.position.z = optimized[2] 
+                request.ik_request.pose_stamped.pose.position.x = load_cache.cache[0]
+                request.ik_request.pose_stamped.pose.position.y = load_cache.cache[1]
+                request.ik_request.pose_stamped.pose.position.z = load_cache.cache[2] 
 
                 request.ik_request.pose_stamped.pose.orientation.x = -0.018
                 request.ik_request.pose_stamped.pose.orientation.y = 0.742
@@ -123,6 +107,64 @@ class IKFinal:
 
                 # Plan IK
                 plan = group.plan()
+            else:
+                for step in range(NUM_STEPS):
+                    # 1-index step or else you get 0 on the first step
+                    motion_planner = MotionPlanner(ef_posn, (step + 1) * STEP_SIZE, NUM_SAMPLES)
+                    # motion_planner.print_points()
+                    # print(STEP_SIZE)
+                    optimized = motion_planner.optimize(GOAL, POLE_POINT_1, POLE_POINT_2, CUSTOM_BETA)
+                    # Do not update optimized if the current point is more optimal
+                    def optimal_argmin(arr1, arr2, goal):
+                        if type(arr1) is not np.array:
+                            arr1 = np.array(arr1)
+                        if type(arr2) is not np.array:
+                            arr2 = np.array(arr2)
+
+                        if np.linalg.norm(arr1 - goal) < np.linalg.norm(arr2 - goal):
+                            return arr1
+                        else:
+                            return arr2
+                    
+                    ef_posn = optimal_argmin(ef_posn, optimized, GOAL)
+
+                    print(f"\nEF Position(step {step}):", optimized)
+                    print(f"Distance to goal (step {step}): {np.linalg.norm(ef_posn - np.array(GOAL))}")
+
+                    if all(ef_posn == optimized) or step == 0:
+                        waypoints.append(ef_posn)
+                        print("New waypoint added.")
+                    else:
+                        print("Discarded waypoint candidate.")
+                    print()
+
+
+                    request.ik_request.pose_stamped.pose.position.x = optimized[0]
+                    request.ik_request.pose_stamped.pose.position.y = optimized[1]
+                    request.ik_request.pose_stamped.pose.position.z = optimized[2] 
+
+                    request.ik_request.pose_stamped.pose.orientation.x = -0.018
+                    request.ik_request.pose_stamped.pose.orientation.y = 0.742
+                    request.ik_request.pose_stamped.pose.orientation.z = -0.018
+                    request.ik_request.pose_stamped.pose.orientation.w = 0.670
+                
+
+                    # Send the request to the service
+                    response = compute_ik(request)
+                    
+                    # Print the response HERE
+                    # print(response)
+                    group = MoveGroupCommander("right_arm")
+
+                    # Setting position and orientation target
+                    group.set_pose_target(request.ik_request.pose_stamped)
+
+                    # TRY THIS
+                    # Setting just the position without specifying the orientation
+                    ###group.set_position_target([0.5, 0.5, 0.0])
+
+                    # Plan IK
+                    plan = group.plan()
 
 
             try:
@@ -195,6 +237,12 @@ class IKFinal:
 
                 rospy.loginfo("Tuck process completed.")
 
+                # Wil's new cache
+                if args.save:
+                    save_cache = CacheHandler()
+                    save_cache.load()
+                    save_cache.add(GOAL, waypoints)
+                    save_cache.save('cache.json')
 
                 break
 
@@ -234,4 +282,5 @@ class IKFinal:
 
 # Python's syntax for a main() method
 if __name__ == '__main__':
-    IKFinal()
+    args = parse_flags()
+    IKFinal(args)
