@@ -85,8 +85,8 @@ class LightDetector:
         # Run `python hsv_color_thresholder.py` and tune the bounds so you only see your cup
         # update lower_hsv and upper_hsv directly
 
-        lower_hsv = np.array([127, 161, 220]) # TODO: Define lower HSV values for cup color
-        upper_hsv = np.array([179, 255, 255]) # TODO: Define upper HSV values for cup color
+        lower_hsv = np.array([112, 120, 63]) # TODO: Define lower HSV values for cup color
+        upper_hsv = np.array([164, 255, 255]) # TODO: Define upper HSV values for cup color
 
         # TODO: Threshold the image to get only cup colors
         # HINT: Lookup cv2.inRange()
