@@ -1,4 +1,4 @@
-## Setup steps
+## Computer Vision Setup
 
 **For all Windows**
 - `Start from the folder 'final' to run all commands`
