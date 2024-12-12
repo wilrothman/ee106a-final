@@ -49,7 +49,7 @@ class IKFinal:
 
             START_EF_POSITION = (0.696, 0.161, 0.645) # TODO: fix with a subscriber
             NUM_SAMPLES = 30_000
-            CUSTOM_BETA = 0.03 # [0, 0.05]
+            CUSTOM_BETA = 0.01 # [0, 0.05]
             POLE_POINT_1 = self.POLE_POS
             POLE_POINT_2 = (self.POLE_POS[0], self.POLE_POS[1], self.POLE_POS[2] + 10)
             GOAL = self.LIGHT_POS
@@ -71,17 +71,16 @@ class IKFinal:
             print(f"Pole is distance {MAX_DIST_POLE} from tuck.\nStep Size= {MAX_DIST_POLE}meters / {NUM_STEPS}steps = {STEP_SIZE}meters/step")
 
             waypoints = []
+            load_bool = False
+            load_cache = None
+            index = None
             # for each increasing sphere...
             if input("Load? Type anything for yes."):
                 print("LOADING")
                 load_cache = CacheHandler('cache.json')
                 load_cache.load()
                 index = load_cache.get(GOAL)
-                print('index', index)
-                print('cache:', load_cache.cache)
-                #print("CACHED POINTS:", cache_points)
-                cache_points = load_cache.cache[index]
-                print(cache_points[0])
+                load_bool = True
 
                 # for cache_point in cache_points:
                 #     print(f"Cached point {cache_point}")
@@ -110,7 +109,6 @@ class IKFinal:
 
                 #     # Plan IK
                 #     plan = group.plan()
-                waypoints = cache_points
 
             else:
                 for step in range(NUM_STEPS):
@@ -173,56 +171,63 @@ class IKFinal:
 
             try:
                 group = MoveGroupCommander("right_arm")
-
-                # Use the waypoints to generate a continuous Cartesian path
-                (cartesian_plan, fraction) = group.compute_cartesian_path(
-                    [Pose(
-                        # header=Header(frame_id="base"),
-                            position=Point(x=point[0], y=point[1], z=point[2]),
-                            orientation=Quaternion(x=-0.018, y=0.742, z=-0.018, w=0.670)
-                    ) for point in waypoints],  # List of waypoints
-                    0.01,  # e.g., 1 cm resolution
-                    0.0    # Jump threshold
-                )
-
-                if fraction < 1.0:
-                    rospy.logwarn("Only a partial trajectory was computed. Fraction: {}".format(fraction))
-                else:
-                    rospy.loginfo("Successfully computed a full trajectory through all waypoints.")
-
-                if fraction < 1.0:
-                    rospy.logwarn("Only a partial trajectory was computed. Fraction: {}".format(fraction))
-                else:
-                    rospy.loginfo("Successfully computed a full trajectory through all waypoints.")
-
-                # Execute the Cartesian path
-                user_input = input("Enter 'y' if the trajectory looks safe on RVIZ: ")
-                if user_input == 'y':
+                
+                if load_bool == True:
+                    cartesian_plan = index[0]
                     group.execute(cartesian_plan, wait=True)
+                else:
+                    # Use the waypoints to generate a continuous Cartesian path
+                    (cartesian_plan, fraction) = group.compute_cartesian_path(
+                        [Pose(
+                            # header=Header(frame_id="base"),
+                                position=Point(x=point[0], y=point[1], z=point[2]),
+                                orientation=Quaternion(x=-0.018, y=0.742, z=-0.018, w=0.670)
+                        ) for point in waypoints],  # List of waypoints
+                        0.01,  # e.g., 1 cm resolution
+                        0.0    # Jump threshold
+                    )
+
+                    if fraction < 1.0:
+                        rospy.logwarn("Only a partial trajectory was computed. Fraction: {}".format(fraction))
+                    else:
+                        rospy.loginfo("Successfully computed a full trajectory through all waypoints.")
+
+                    if fraction < 1.0:
+                        rospy.logwarn("Only a partial trajectory was computed. Fraction: {}".format(fraction))
+                    else:
+                        rospy.loginfo("Successfully computed a full trajectory through all waypoints.")
+
+                    # Execute the Cartesian path
+                    user_input = input("Enter 'y' if the trajectory looks safe on RVIZ: ")
+                    if user_input == 'y':
+                        group.execute(cartesian_plan, wait=True)
 
                 ### Path reversal ###
 
                 reversed_waypoints = list(reversed(waypoints))
-
-                # Plan the Cartesian path for the reversed waypoints
-                (reverse_cartesian_plan, reverse_fraction) = group.compute_cartesian_path(
-                    [Pose(
-                        position=Point(x=point[0], y=point[1], z=point[2]),
-                        orientation=Quaternion(x=-0.018, y=0.742, z=-0.018, w=0.670)
-                    ) for point in reversed_waypoints],  # List of reversed waypoints
-                    0.01,  # e.g., 1 cm resolution
-                    0.0    # Jump threshold
-                )
-
-                if reverse_fraction < 1.0:
-                    rospy.logwarn("Only a partial trajectory was computed for the reversed path. Fraction: {}".format(reverse_fraction))
-                else:
-                    rospy.loginfo("Successfully computed a full reversed trajectory to tuck position.")
-
-                # Execute the reversed Cartesian path
-                user_input = input("Enter 'y' if the reversed trajectory looks safe on RVIZ: ")
-                if user_input == 'y':
+                if load_bool == True:
+                    reverse_cartesian_plan = index[1]
                     group.execute(reverse_cartesian_plan, wait=True)
+                else:
+                    # Plan the Cartesian path for the reversed waypoints
+                    (reverse_cartesian_plan, reverse_fraction) = group.compute_cartesian_path(
+                        [Pose(
+                            position=Point(x=point[0], y=point[1], z=point[2]),
+                            orientation=Quaternion(x=-0.018, y=0.742, z=-0.018, w=0.670)
+                        ) for point in reversed_waypoints],  # List of reversed waypoints
+                        0.01,  # e.g., 1 cm resolution
+                        0.0    # Jump threshold
+                    )
+
+                    if reverse_fraction < 1.0:
+                        rospy.logwarn("Only a partial trajectory was computed for the reversed path. Fraction: {}".format(reverse_fraction))
+                    else:
+                        rospy.loginfo("Successfully computed a full reversed trajectory to tuck position.")
+
+                    # Execute the reversed Cartesian path
+                    user_input = input("Enter 'y' if the reversed trajectory looks safe on RVIZ: ")
+                    if user_input == 'y':
+                        group.execute(reverse_cartesian_plan, wait=True)
 
                 rospy.loginfo("Starting the tuck process...")
 
@@ -236,7 +241,7 @@ class IKFinal:
                 tuck_launch.start()
                 rospy.loginfo("Tuck launch initiated.")
 
-                # Wait for the tuck to complete or stop manually
+                # Wait for the tuck to complete or stop manually0000000000000
                 tuck_launch.spin()
 
                 rospy.loginfo("Tuck process completed.")
@@ -246,7 +251,7 @@ class IKFinal:
                     print("SAVING")
                     save_cache = CacheHandler('cache.json')
                     save_cache.load()
-                    save_cache.add(GOAL, waypoints)
+                    save_cache.add(GOAL, (cartesian_plan, reverse_cartesian_plan))
                     save_cache.save()
 
                 break

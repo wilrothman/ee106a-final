@@ -87,8 +87,8 @@ class PoleDetector:
         # Run `python hsv_color_thresholder.py` and tune the bounds so you only see your cup
         # update lower_hsv and upper_hsv directly
 
-        lower_hsv = np.array([34, 66, 48]) # TODO: Define lower HSV values for cup color
-        upper_hsv = np.array([79, 255, 255]) # TODO: Define upper HSV values for cup color
+        lower_hsv = np.array([30, 142, 63]) # TODO: Define lower HSV values for cup color
+        upper_hsv = np.array([61, 247, 175]) # TODO: Define upper HSV values for cup color
 
         # TODO: Threshold the image to get only cup colors
         # HINT: Lookup cv2.inRange()

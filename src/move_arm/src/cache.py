@@ -3,82 +3,57 @@ import json
 import numpy as np
 
 
-class CacheHandler:
-    # Underlying data structure: dict (goal_point -> waypoints)
-    # Constructor: CacheHandler(optional filename)
-    # Methods
-    #   save():                     saves to cache file
-    #   load():                     loads a cache file. Initiates a new one if one does not exist
-    #   add(goal_point, waypoints): saves a new value to the cache
-    #   get(goal_point):            gets the closest point to the goal point
-    #
+import pickle
 
-    def __init__(self, filename='cache.json'):
-        #   Data structure: dict
-        #   Key:  (start_point: tuple, goal_point: tuple, (pole_point_1: tuple, pole_point_2: tuple))
-        #   Value: [waypoint_1, ..., waypoint_n]
+class CacheHandler:
+    def __init__(self, filename='cache.pkl'):
         self.cache = {}
         self.filename = filename
         print("[CACHE] New handler instance created")
 
     def save(self):
-        """Saves cache to file with stringified keys."""
-        # Convert tuple keys to strings
-        serializable_cache = {str(key): value for key, value in self.cache.items()}
-        with open(self.filename, 'w') as file:
-            json.dump(serializable_cache, file)
+        """Saves cache to a file using pickle."""
+        with open(self.filename, 'wb') as file:
+            pickle.dump(self.cache, file)
         print(f"[CACHE] Wrote cache to {self.filename}")
 
-
     def load(self):
-        """Loads cache from file and converts keys back to tuples."""
+        """Loads cache from a file using pickle."""
         try:
-            with open(self.filename, 'r') as file:
-                loaded_cache = json.load(file)
-                # Convert string keys back to tuples
-                self.cache = {eval(key): value for key, value in loaded_cache.items()}
+            with open(self.filename, 'rb') as file:
+                self.cache = pickle.load(file)
             print(f"[CACHE] Loaded cache from {self.filename}")
         except FileNotFoundError:
             print(f"[CACHE] Cache file {self.filename} not found. Initializing an empty cache.")
             self.cache = {}
 
-    def add(self, goal_point, waypoints):
-        # start, goal, pole_point_1, pole_point_2 = tuple(start), tuple(goal), tuple(pole_point_1), tuple(pole_point_2)
+    def add(self, goal_point, trajectories):
+        """Adds trajectories (list of plans) to the cache."""
         goal_point = tuple(goal_point)
-        waypoints = [tuple(waypoint) for waypoint in waypoints]
 
-        if goal_point in self.cache.keys():
-            print(f"[CACHE] Goal point {goal_point} already exists. Overwritting waypoints...")
+        if goal_point in self.cache:
+            print(f"[CACHE] Goal point {goal_point} already exists. Overwriting trajectories...")
 
-        self.cache[goal_point] = waypoints
-        print(F"[CACHE] Added {goal_point} -> {waypoints}")
+        self.cache[goal_point] = trajectories
+        print(f"[CACHE] Added {goal_point} -> {trajectories}")
 
     def get(self, goal_point):
-        # Edge case. Hopefully shouldn't happen.
+        """Retrieves the closest key to the goal point."""
         if not self.cache:
             raise KeyError("[CACHE] Cache is empty. No keys to retrieve.")
+        
+        goal_point = tuple(goal_point)
 
-        # Vectorize the problem
         candidate_goal_points = np.array(list(self.cache.keys()))
-        # print("DEBUG: converted datatype keys -> list -> array")
-        # print("DEBUG:", candidate_goal_points)
 
-        # Finding minimum distance
-
-        distances = list(map(
-            lambda candidate: np.linalg.norm(candidate - goal_point),
-            candidate_goal_points
-        ))
-
-        # print("DEBUG: Distances:", distances)
+        # Compute distances
+        distances = np.linalg.norm(candidate_goal_points - goal_point, axis=1)
         closest_index = np.argmin(distances)
-        # print("DEBUG: argmin =", closest_index)
-
-        # Retrieval
-        closest_key = tuple(candidate_goal_points[closest_index]) 
+        closest_key = tuple(candidate_goal_points[closest_index])
 
         print(f"[CACHE] Closest key to {goal_point}: {closest_key} with distance {distances[closest_index]}")
-        return closest_key
+        return self.cache[closest_key]
+
 
 
     
