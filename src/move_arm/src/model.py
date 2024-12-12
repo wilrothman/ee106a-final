@@ -114,9 +114,12 @@ class MotionPlanner:
     
     def find_joint_dist_penalization(self, ef_point, joint_positions, pole_point_1, pole_point_2):
         total_joint_dists = 0
+        i = 0
         for joint in joint_positions:
-            temp_joint_dist = np.linalg.norm(self.closest_point_on_pole(joint_positions[joint], pole_point_1, pole_point_2) - joint_positions[joint])
-            total_joint_dists += 1/temp_joint_dist**2
+            if i > 2:
+                temp_joint_dist = np.linalg.norm(self.closest_point_on_pole(joint_positions[joint], pole_point_1, pole_point_2) - joint_positions[joint])
+                total_joint_dists += 1/temp_joint_dist**2
+            i += 1
         dist_to_pole = np.linalg.norm(self.closest_point_on_pole(ef_point, pole_point_1, pole_point_2) - ef_point)
         total_joint_dists += 1/dist_to_pole**2
         return total_joint_dists

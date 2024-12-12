@@ -12,23 +12,19 @@ import roslaunch
 from cache import CacheHandler
 import argparse
 
-def parse_flags():
-    parser = argparse.ArgumentParser(description="IK Final")
-    parser.add_argument('-s' '--save', action='store_true', help="Save current path to cache")
-    parser.add_argument('-l', '--load', action='store_true', help="Attempt to load current path from cache")
-    args = parser.parse_args()
-
-    print(f"[ARGS] Boolean arguments:\nSave to Cache: {args.save}\nLoad from Cache: {args.load}.")
-    return args
-
 class IKFinal:
-    def __init__(self, args):
+    def __init__(self):
+        ### ARGS ###
 
         self.POLE_POS = None
         self.LIGHT_POS = None
 
+        print("Starting program, attempting to subscribe...")
+
         pole_sub  =  rospy.Subscriber("pole_point", Point, self.pole_callback)
         light_sub = rospy.Subscriber("light_point", Point, self.light_callback)
+
+        print("Subscribed!")
 
         # Wait for the IK service to become available
         rospy.wait_for_service('compute_ik')
@@ -51,11 +47,11 @@ class IKFinal:
             # print("Pole positions")
             # print(self.POLE_POS)
 
-            START_EF_POSITION = (0.816, 0.161, 0.642) # TODO: fix with a subscriber
+            START_EF_POSITION = (0.696, 0.161, 0.645) # TODO: fix with a subscriber
             NUM_SAMPLES = 30_000
-            CUSTOM_BETA = 0.05 # [0, 0.05]
+            CUSTOM_BETA = 0.03 # [0, 0.05]
             POLE_POINT_1 = self.POLE_POS
-            POLE_POINT_2 = (self.POLE_POS[0], self.POLE_POS[1], self.POLE_POS[2] + 0.85)
+            POLE_POINT_2 = (self.POLE_POS[0], self.POLE_POS[1], self.POLE_POS[2] + 10)
             GOAL = self.LIGHT_POS
 
             # POLE_POINT_1 = (0.600, 0.061, 0) # stubbing for tests
@@ -76,36 +72,46 @@ class IKFinal:
 
             waypoints = []
             # for each increasing sphere...
-            if args.load:
+            if input("Load? Type anything for yes."):
+                print("LOADING")
                 load_cache = CacheHandler('cache.json')
                 load_cache.load()
-                load_cache.get(GOAL)
+                index = load_cache.get(GOAL)
+                print('index', index)
+                print('cache:', load_cache.cache)
+                #print("CACHED POINTS:", cache_points)
+                cache_points = load_cache.cache[index]
+                print(cache_points[0])
 
-                request.ik_request.pose_stamped.pose.position.x = load_cache.cache[0]
-                request.ik_request.pose_stamped.pose.position.y = load_cache.cache[1]
-                request.ik_request.pose_stamped.pose.position.z = load_cache.cache[2] 
+                # for cache_point in cache_points:
+                #     print(f"Cached point {cache_point}")
+                #     request.ik_request.pose_stamped.pose.position.x = cache_point[0]
+                #     request.ik_request.pose_stamped.pose.position.y = cache_point[1]
+                #     request.ik_request.pose_stamped.pose.position.z = cache_point[2] 
 
-                request.ik_request.pose_stamped.pose.orientation.x = -0.018
-                request.ik_request.pose_stamped.pose.orientation.y = 0.742
-                request.ik_request.pose_stamped.pose.orientation.z = -0.018
-                request.ik_request.pose_stamped.pose.orientation.w = 0.670
+                #     request.ik_request.pose_stamped.pose.orientation.x = 0.742
+                #     request.ik_request.pose_stamped.pose.orientation.y = 0.001
+                #     request.ik_request.pose_stamped.pose.orientation.z = 0.670
+                #     request.ik_request.pose_stamped.pose.orientation.w = 0.004
 
-                # Send the request to the service
-                response = compute_ik(request)
-                
-                # Print the response HERE
-                # print(response)
-                group = MoveGroupCommander("right_arm")
+                #     # Send the request to the service
+                #     response = compute_ik(request)
+                    
+                #     # Print the response HERE
+                #     # print(response)
+                #     group = MoveGroupCommander("right_arm")
 
-                # Setting position and orientation target
-                group.set_pose_target(request.ik_request.pose_stamped)
+                #     # Setting position and orientation target
+                #     group.set_pose_target(request.ik_request.pose_stamped)
 
-                # TRY THIS
-                # Setting just the position without specifying the orientation
-                ###group.set_position_target([0.5, 0.5, 0.0])
+                #     # TRY THIS
+                #     # Setting just the position without specifying the orientation
+                #     ###group.set_position_target([0.5, 0.5, 0.0])
 
-                # Plan IK
-                plan = group.plan()
+                #     # Plan IK
+                #     plan = group.plan()
+                waypoints = cache_points
+
             else:
                 for step in range(NUM_STEPS):
                     # 1-index step or else you get 0 on the first step
@@ -138,32 +144,31 @@ class IKFinal:
                     print()
 
 
-                    request.ik_request.pose_stamped.pose.position.x = optimized[0]
-                    request.ik_request.pose_stamped.pose.position.y = optimized[1]
-                    request.ik_request.pose_stamped.pose.position.z = optimized[2] 
+                    # request.ik_request.pose_stamped.pose.position.x = optimized[0]
+                    # request.ik_request.pose_stamped.pose.position.y = optimized[1]
+                    # request.ik_request.pose_stamped.pose.position.z = optimized[2] 
 
-                    request.ik_request.pose_stamped.pose.orientation.x = -0.018
-                    request.ik_request.pose_stamped.pose.orientation.y = 0.742
-                    request.ik_request.pose_stamped.pose.orientation.z = -0.018
-                    request.ik_request.pose_stamped.pose.orientation.w = 0.670
+                    # request.ik_request.pose_stamped.pose.orientation.x = 0.742
+                    # request.ik_request.pose_stamped.pose.orientation.y = 0.001
+                    # request.ik_request.pose_stamped.pose.orientation.z = 0.670
+                    # request.ik_request.pose_stamped.pose.orientation.w = 0.004
                 
 
-                    # Send the request to the service
-                    response = compute_ik(request)
+                    # # Send the request to the service
+                    # response = compute_ik(request)
                     
-                    # Print the response HERE
-                    # print(response)
-                    group = MoveGroupCommander("right_arm")
+                    # # Print the response HERE
+                    # # print(response)
+                    # group = MoveGroupCommander("right_arm")
 
-                    # Setting position and orientation target
-                    group.set_pose_target(request.ik_request.pose_stamped)
+                    # # Setting position and orientation target
+                    # group.set_pose_target(request.ik_request.pose_stamped)
 
-                    # TRY THIS
-                    # Setting just the position without specifying the orientation
-                    ###group.set_position_target([0.5, 0.5, 0.0])
-
-                    # Plan IK
-                    plan = group.plan()
+                    # # TRY THIS
+                    # # Setting just the position without specifying the orientation
+                    # ###group.set_position_target([0.5, 0.5, 0.0])
+                    # # Plan IK
+                    # plan = group.plan()
 
 
             try:
@@ -237,11 +242,12 @@ class IKFinal:
                 rospy.loginfo("Tuck process completed.")
 
                 # Wil's new cache
-                if args.save:
-                    save_cache = CacheHandler()
+                if input("Save? Type anything for yes."):
+                    print("SAVING")
+                    save_cache = CacheHandler('cache.json')
                     save_cache.load()
                     save_cache.add(GOAL, waypoints)
-                    save_cache.save('cache.json')
+                    save_cache.save()
 
                 break
 
@@ -272,14 +278,13 @@ class IKFinal:
 
     # Coordinate deconstruction callback for pole subscriber
     def pole_callback(self, msg):
-        self.POLE_POS = (msg.x + 0.2, msg.y, msg.z)
+        self.POLE_POS = (msg.x, msg.y, msg.z)
     
     # Coordinate deconstruction callback for light subscriber
     def light_callback(self, msg):
-        self.LIGHT_POS = (msg.x + 0.1, msg.y, msg.z)
+        self.LIGHT_POS = (msg.x, msg.y, msg.z)
 
 
 # Python's syntax for a main() method
 if __name__ == '__main__':
-    args = parse_flags()
-    IKFinal(args)
+    IKFinal()
