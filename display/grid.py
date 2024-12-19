@@ -6,7 +6,7 @@ import sys
 
 ### HYPERPARAMETERS ###
 BACKGROUND_COLOR = (0, 0, 0)  # Default black
-SQUARE_COLOR = (255, 0, 0)  # Default red
+SQUARE_COLOR = (255, 0, 247)  # Default red
 FPS = 60  # Frames per second
 CIRCLE_RADIUS_RANGE = (25, 150)  # Default radius range
 DISPLAY_DIMENSIONS = (800, 600)  # Default display dimensions
@@ -17,10 +17,10 @@ def parse_flags():
 
     parser.add_argument("-s", "--square_size", type=str, default=100, help="Size of each square")   
 
-    parser.add_argument("-n", "--number_squares", type=str, default=8,
+    parser.add_argument("-n", "--number_squares", type=str, default=3,
                         help="Number of squares in each dimension (total number of squares will be n x n)")
 
-    parser.add_argument("-c", "--color", type=ast.literal_eval, default=(255, 255, 255),
+    parser.add_argument("-c", "--color", type=ast.literal_eval, default=(255, 0, 247),
                         help="Shape color as (R, G, B). Default: (255, 255, 255)")
     
     parser.add_argument("-b", "--background", type=ast.literal_eval, default=(0, 0, 0),
@@ -37,13 +37,19 @@ def main(args):
     # Update global variables based on parsed flags
     BACKGROUND_COLOR = args.background
     SQUARE_COLOR = args.color
-    SQUARE_SIDE = args.square_size
-    WINDOW_SIDE = args.square_size * args.number_squares
-    NUM_SQUARES = args.number_squares
+    WINDOW_SIDE_X = 1440
+    WINDOW_SIDE_Y = 880
+    NUM_SQUARES = 6
+
+    NUM_X = 4
+    NUM_Y = 2
+
+    SQUARE_SIDE_X = WINDOW_SIDE_X/NUM_X
+    SQUARE_SIDE_Y = WINDOW_SIDE_Y/NUM_Y
 
     # Initialize Pygame
     pg.init()
-    screen = pg.display.set_mode((WINDOW_SIDE, WINDOW_SIDE))
+    screen = pg.display.set_mode((WINDOW_SIDE_X, WINDOW_SIDE_Y))
     pg.display.set_caption("EE106A Final Project Display")
     clock = pg.time.Clock()
 
@@ -63,9 +69,9 @@ def main(args):
                     # Draw everything
                     screen.fill(BACKGROUND_COLOR)
 
-                    x = random.randint(0, NUM_SQUARES - 1)
-                    y = random.randint(0, NUM_SQUARES - 1)
-                    pg.draw.rect(screen, SQUARE_COLOR, (x * SQUARE_SIDE, y * SQUARE_SIDE, SQUARE_SIDE, SQUARE_SIDE))
+                    x = random.randint(0, NUM_X - 1)
+                    y = random.randint(0, NUM_Y - 1)
+                    pg.draw.rect(screen, SQUARE_COLOR, (x * SQUARE_SIDE_X, y * SQUARE_SIDE_Y, SQUARE_SIDE_X, SQUARE_SIDE_Y))
                     
                     # Pygame updates
                     pg.display.flip()
