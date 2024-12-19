@@ -49,10 +49,13 @@ class IKFinal:
 
             START_EF_POSITION = (0.696, 0.161, 0.645) # TODO: fix with a subscriber
             NUM_SAMPLES = 30_000
-            CUSTOM_BETA = 0.01 # [0, 0.05]
+            CUSTOM_BETA = 0.00 # [0, 0.05]
             POLE_POINT_1 = self.POLE_POS
             POLE_POINT_2 = (self.POLE_POS[0], self.POLE_POS[1], self.POLE_POS[2] + 10)
-            GOAL = self.LIGHT_POS
+            if self.LIGHT_POS is None:
+                GOAL = (0.696, 0.261, 0.645)
+            else:
+                GOAL = self.LIGHT_POS
 
             # POLE_POINT_1 = (0.600, 0.061, 0) # stubbing for tests
             # POLE_POINT_2 = (0.600, 0.061, 2) # stubbing for tests
@@ -246,7 +249,7 @@ class IKFinal:
 
                 rospy.loginfo("Tuck process completed.")
 
-                # Wil's new cache
+                # Sid's new cache
                 if input("Save? Type anything for yes."):
                     print("SAVING")
                     save_cache = CacheHandler('cache.json')
