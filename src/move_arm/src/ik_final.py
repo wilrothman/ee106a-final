@@ -49,7 +49,7 @@ class IKFinal:
 
             START_EF_POSITION = (0.696, 0.161, 0.645) # TODO: fix with a subscriber
             NUM_SAMPLES = 30_000
-            CUSTOM_BETA = 0.00 # [0, 0.05]
+            CUSTOM_BETA = 0.02 # [0, 0.05]
             POLE_POINT_1 = self.POLE_POS
             POLE_POINT_2 = (self.POLE_POS[0], self.POLE_POS[1], self.POLE_POS[2] + 10)
             if self.LIGHT_POS is None:
